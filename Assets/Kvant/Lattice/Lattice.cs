@@ -113,7 +113,7 @@ namespace Kvant
                 // Number of segments.
                 var segments = total_vc / 65000 + 1;
                 // Rows per segment.
-                return _rows / segments;
+                return segments > 1 ? (_rows / segments) / 2 * 2 : _rows;
             }
         }
 

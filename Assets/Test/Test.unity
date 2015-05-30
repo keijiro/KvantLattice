@@ -14,8 +14,8 @@ SceneSettings:
 RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 6
-  m_Fog: 0
-  m_FogColor: {r: .5, g: .5, b: .5, a: 1}
+  m_Fog: 1
+  m_FogColor: {r: .529411793, g: .529411793, b: .529411793, a: 1}
   m_FogMode: 3
   m_FogDensity: .00999999978
   m_LinearFogStart: 0
@@ -174,15 +174,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 707f38db09f5c4f19bb312c9b6160423, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _columns: 192
-  _rows: 827
-  _size: {x: 79.2300034, y: 395.600006}
+  _columns: 685
+  _rows: 1024
+  _size: {x: 502.23999, y: 499.799988}
   _noiseOffset: {x: 0, y: 0}
-  _noiseFrequency: 2
-  _noiseElevation: 17.7800007
-  _noiseWarp: .100000001
+  _noiseFrequency: 35
+  _noiseElevation: 8.27999973
+  _noiseWarp: 1.54999995
   _surfaceColor: {r: 1, g: 1, b: 1, a: 1}
-  _lineColor: {r: 0, g: 0, b: 0, a: .400000006}
+  _lineColor: {r: .25, g: 0, b: 0, a: .400000006}
   _debug: 0
   _kernelShader: {fileID: 4800000, guid: cc0a7661a4d054189b5c00584b5c766a, type: 3}
   _surfaceShader: {fileID: 4800000, guid: cf62a4ebaed0d4e709d8873a9765171d, type: 3}
