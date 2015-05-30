@@ -1,7 +1,6 @@
 ﻿//
-// Lattice - fractal-deformed lattice
+// Lattice - fractal-deformed lattice renderer
 //
-
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -12,22 +11,20 @@ namespace Kvant
     {
         #region Parameters Exposed To Editor
 
-        [SerializeField] Vector2 _size = Vector2.one * 5;
+        [SerializeField] int _columns = 100;
+        [SerializeField] int _rows = 100;
+        [SerializeField] Vector2 _size = Vector2.one * 10;
 
-        [SerializeField] int _slices = 200;
-        [SerializeField] int _stacks = 200;
-
-        [SerializeField] Vector2 _offset = Vector2.zero;
-
-        [SerializeField] int _frequency = 2;
-        [SerializeField] float _bump = 0;
-        [SerializeField] float _warp = 0;
+        [SerializeField] Vector2 _noiseOffset = Vector2.zero;
+        [SerializeField] int _noiseFrequency = 2;
+        [SerializeField] float _noiseElevation = 0.5f;
+        [SerializeField] float _noiseWarp = 0.1f;
 
         [ColorUsage(true, true, 0, 8, 0.125f, 3)]
-        [SerializeField] Color _surfaceColor = Color.gray;
+        [SerializeField] Color _surfaceColor = Color.white;
 
         [ColorUsage(true, true, 0, 8, 0.125f, 3)]
-        [SerializeField] Color _lineColor = Color.white;
+        [SerializeField] Color _lineColor = new Color(0, 0, 0, 0.4f);
 
         [SerializeField] bool _debug;
 
@@ -35,32 +32,39 @@ namespace Kvant
 
         #region Public Properties
 
+        public int columns { get { return _columns; } }
+
+        public int rows {
+            // Returns the actual number of rows.
+            get {
+                var rps = rowsPerSegment;
+                return (_rows + rps - 1) / rps * rps;
+            }
+        }
+
         public Vector2 size {
             get { return _size; }
             set { _size = value; }
         }
 
-        public int slices { get { return _slices; } }
-        public int stacks { get { return _stacks; } }
-
-        public Vector2 offset {
-            get { return _offset; }
-            set { _offset = value; }
+        public Vector2 noiseOffset {
+            get { return _noiseOffset; }
+            set { _noiseOffset = value; }
         }
 
-        public int frequency {
-            get { return _frequency; }
-            set { _frequency = value; }
+        public int noiseFrequency {
+            get { return _noiseFrequency; }
+            set { _noiseFrequency = value; }
         }
 
-        public float bump {
-            get { return _bump; }
-            set { _bump = value; }
+        public float noiseElevation {
+            get { return _noiseElevation; }
+            set { _noiseElevation = value; }
         }
 
-        public float warp {
-            get { return _warp; }
-            set { _warp = value; }
+        public float noiseWarp {
+            get { return _noiseWarp; }
+            set { _noiseWarp = value; }
         }
 
         public Color surfaceColor {
@@ -100,17 +104,26 @@ namespace Kvant
 
         #endregion
 
+        #region Private Properties
+
+        int rowsPerSegment {
+            get {
+                // Estimate the total count of vertices.
+                var total_vc = (_columns + 1) * (_rows + 1) * 6;
+                // Number of segments.
+                var segments = total_vc / 65000 + 1;
+                // Rows per segment.
+                return _rows / segments;
+            }
+        }
+
+        #endregion
+
         #region Resource Management
 
         public void NotifyConfigChange()
         {
             _needsReset = true;
-        }
-
-        void SanitizeParameters()
-        {
-            _slices = Mathf.Clamp(_slices, 8, 255);
-            _stacks = Mathf.Clamp(_stacks, 8, 1023);
         }
 
         Material CreateMaterial(Shader shader)
@@ -122,8 +135,8 @@ namespace Kvant
 
         RenderTexture CreateBuffer()
         {
-            var width = (_slices + 1) * 2;
-            var height = _stacks + 1;
+            var width = (_columns + 1) * 2;
+            var height = rows + 1;
             var buffer = new RenderTexture(width, height, 0, RenderTextureFormat.ARGBFloat);
             buffer.hideFlags = HideFlags.DontSave;
             buffer.filterMode = FilterMode.Point;
@@ -134,17 +147,11 @@ namespace Kvant
         void UpdateKernelShader()
         {
             var m = _kernelMaterial;
-
-            /*
-            var height = _height * (_stacks + 1) / _stacks;
-            var vfreq = _frequency / (Mathf.PI * 2 * _radius);
-            var nparams = new Vector4(_frequency, vfreq * height, _twist * _frequency, _offset * vfreq);
-
-            m.SetVector("_SizeParams", new Vector2(_radius, height));
-            m.SetVector("_NoiseParams",nparams);
-            m.SetVector("_NoisePeriod", new Vector3(1, 100000));
-            */
-            m.SetVector("_Displace", new Vector3(_bump, _warp, _warp));
+            var nparams = new Vector4(1, 1, _noiseOffset.x, _noiseOffset.y) * _noiseFrequency;
+            m.SetVector("_SizeParams", _size);
+            m.SetVector("_NoiseParams", nparams);
+            m.SetVector("_NoisePeriod", new Vector3(100000, 100000));
+            m.SetVector("_Displace", new Vector3(_noiseElevation, _noiseWarp, _noiseWarp));
         }
 
         void UpdateDisplayShader()
@@ -156,13 +163,15 @@ namespace Kvant
 
         void ResetResources()
         {
-            SanitizeParameters();
+            // Sanitize the parameters.
+            _columns = Mathf.Clamp(_columns, 4, 1024);
+            _rows = Mathf.Clamp(_rows, 4, 1024);
 
             // Mesh object.
             if (_bulkMesh == null)
-                _bulkMesh = new BulkMesh(_slices, _stacks);
+                _bulkMesh = new BulkMesh(_columns, rowsPerSegment, rows);
             else
-                _bulkMesh.Rebuild(_slices, _stacks);
+                _bulkMesh.Rebuild(_columns, rowsPerSegment, rows);
 
             // Displacement buffers.
             if (_positionBuffer) DestroyImmediate(_positionBuffer);
@@ -229,23 +238,15 @@ namespace Kvant
             var p = transform.position;
             var r = transform.rotation;
 
-            var uv = new Vector2(0.5f / _positionBuffer.width, 0.5f / _positionBuffer.height);
+            var uv = new Vector2(0.5f / _positionBuffer.width, 0);
             var offs = new MaterialPropertyBlock();
+            var mesh = _bulkMesh.mesh;
+            var rps = rowsPerSegment;
+            var rowCount = rows;
 
-            for (var i = 0; i < _bulkMesh.meshes.Length; i++)
+            for (var i = 0; i < rowCount; i += rps)
             {
-                var mesh = _bulkMesh.meshes[0];
-
-                uv.y = 0.5f / _positionBuffer.height;
-
-                if (i == _bulkMesh.meshes.Length - 1)
-                {
-                    mesh = _bulkMesh.meshes[i];
-                }
-                else
-                {
-                    uv.y += 1.0f * i / _bulkMesh.meshes.Length;
-                }
+                uv.y = (0.5f + i) / _positionBuffer.height;
 
                 offs.AddVector("_UVOffset", uv);
 
@@ -255,17 +256,6 @@ namespace Kvant
                 if (_lineColor.a > 0.0f)
                     Graphics.DrawMesh(mesh, p, r, _lineMaterial, 0, null, 2, offs);
             }
-
-/*
-            foreach (var mesh in _bulkMesh.meshes)
-            {
-                offs.AddVector("_UVOffset", uv);
-                Graphics.DrawMesh(mesh, p, r, _surfaceMaterial1, 0, null, 0, offs);
-                Graphics.DrawMesh(mesh, p, r, _surfaceMaterial2, 0, null, 1, offs);
-                if (_lineColor.a > 0.0f)
-                    Graphics.DrawMesh(mesh, p, r, _lineMaterial, 0, null, 2, offs);
-            }
-            */
         }
 
         void OnGUI()

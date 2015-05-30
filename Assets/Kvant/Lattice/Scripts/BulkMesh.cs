@@ -18,7 +18,6 @@
 // texcoord0.xy = uv for position texture
 // texcoord1.xy = uv for normal texture
 //
-
 using UnityEngine;
 
 namespace Kvant
@@ -30,30 +29,29 @@ namespace Kvant
         {
             #region Properties
 
-            Mesh[] _meshes;
-            public Mesh[] meshes { get { return _meshes; } }
+            Mesh _mesh;
+            public Mesh mesh { get { return _mesh; } }
 
             #endregion
 
             #region Public Methods
 
-            public BulkMesh(int columns, int rows)
+            public BulkMesh(int columns, int rowsPerSegment, int totalRows)
             {
-                Build(columns, rows);
+                _mesh = BuildMesh(columns, rowsPerSegment, totalRows);
             }
 
-            public void Rebuild(int columns, int rows)
+            public void Rebuild(int columns, int rowsPerSegment, int totalRows)
             {
                 Release();
-                Build(columns, rows);
+                _mesh = BuildMesh(columns, rowsPerSegment, totalRows);
             }
 
             public void Release()
             {
-                if (_meshes != null)
-                {
-                    foreach (var m in _meshes) Object.DestroyImmediate(m);
-                    _meshes = null;
+                if (_mesh != null) {
+                    Object.DestroyImmediate(_mesh);
+                    _mesh = null;
                 }
             }
 
@@ -61,36 +59,7 @@ namespace Kvant
 
             #region Private Methods
 
-            void Build(int columns, int rows)
-            {
-                // Estimate total count of vertices.
-                var totalVC = columns * rows * 6;
-
-                if (totalVC <= 60000)
-                {
-                    // < 60000: It needs just one mesh.
-                    _meshes = new Mesh[1] { BuildMesh(columns, rows, 0, rows) };
-                }
-                else
-                {
-                    // > 60000: Split into segments.
-                    var segments = totalVC / 60000 + 1;
-                    _meshes = new Mesh[segments];
-
-                    // Have an even number of rows in a segment.
-                    var rowsSegment = (rows / segments / 2 + 1) * 2;
-
-                    // Build each segments excluding the last one.
-                    for (var i = 0; i < segments - 1; i++)
-                        _meshes[i] = BuildMesh(columns, rowsSegment, rowsSegment * i, rows);
-
-                    // Build the last segment.
-                    var last = rowsSegment * (segments - 1);
-                    _meshes[segments - 1] = BuildMesh(columns, rows - last, last, rows);
-                }
-            }
-
-            Mesh BuildMesh(int columns, int rows, int startRow, int totalRows)
+            Mesh BuildMesh(int columns, int rows, int totalRows)
             {
                 var Nx = columns + 1;
                 var Ny = rows + 1;
@@ -98,7 +67,7 @@ namespace Kvant
                 var Sx = 0.5f / Nx;
                 var Sy = 1.0f / (totalRows + 1);
 
-                var Oy = Sy * startRow;
+                var Oy = 0.0f;
 
                 // Texcoord Array for UV1 and UV2.
                 var TA1 = new Vector2[(Nx - 1) * (Ny - 1) * 6];

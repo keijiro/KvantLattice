@@ -157,7 +157,7 @@ GameObject:
   - 4: {fileID: 1146672369}
   - 114: {fileID: 1146672368}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: Lattice
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -174,15 +174,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 707f38db09f5c4f19bb312c9b6160423, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _size: {x: 5, y: 5}
-  _slices: 200
-  _stacks: 200
-  _offset: {x: 0, y: 0}
-  _frequency: 2
-  _bump: 1.38999999
-  _warp: 0
-  _surfaceColor: {r: .602941155, g: .602941155, b: .602941155, a: 1}
-  _lineColor: {r: 0, g: 0, b: 0, a: .296999991}
+  _columns: 192
+  _rows: 827
+  _size: {x: 79.2300034, y: 395.600006}
+  _noiseOffset: {x: 0, y: 0}
+  _noiseFrequency: 2
+  _noiseElevation: 17.7800007
+  _noiseWarp: .100000001
+  _surfaceColor: {r: 1, g: 1, b: 1, a: 1}
+  _lineColor: {r: 0, g: 0, b: 0, a: .400000006}
   _debug: 0
   _kernelShader: {fileID: 4800000, guid: cc0a7661a4d054189b5c00584b5c766a, type: 3}
   _surfaceShader: {fileID: 4800000, guid: cf62a4ebaed0d4e709d8873a9765171d, type: 3}
