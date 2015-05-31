@@ -1,71 +1,95 @@
 ﻿//
-// GPGPU kernels for Tunnel.
-//
-// There are three kernels in the shader.
-//
-// Kernel 0 - Generates a vertex array of the fractal tunnel.
-// Kernel 1 - Generates a normal vector array for the 1st half of the lattice.
-// Kernel 2 - Generates a normal vector array for the 2nd half of the lattice.
+// GPGPU kernels for Tunnel
 //
 Shader "Hidden/Kvant/Lattice/Kernels"
 {
     Properties
     {
-        _MainTex        ("-", 2D)       = ""{}
-        _SizeParams     ("-", Vector)   = (5, 5, 0, 0)
-        _NoiseParams    ("-", Vector)   = (1, 1, 0, 0)
-        _NoisePeriod    ("-", Vector)   = (1, 1, 0, 0)
-        _Displace       ("-", Vector)   = (0.3, 0.3, 0.3, 0)
+        _MainTex  ("-", 2D)     = ""{}
+        _Size     ("-", Vector) = (5, 5, 0)
+        _Noise    ("-", Vector) = (1, 0, 0)       // (freq, offs_x, offs_y)
+        _Displace ("-", Vector) = (0.3, -1, 1, 0) // (elevation, min, max, warp)
     }
 
     CGINCLUDE
 
+    #pragma multi_compile DEPTH1 DEPTH2 DEPTH3 DEPTH4 DEPTH5
+    #pragma multi_compile _ ENABLE_WARP
+
     #include "UnityCG.cginc"
     #include "ClassicNoise2D.cginc"
 
-    #define PI2 6.28318530718
-
     sampler2D _MainTex;
     float2 _MainTex_TexelSize;
-    float2 _SizeParams;     // (radius, depth)
-    float4 _NoiseParams;    // (freq_x, freq_y, offs_x, offs_y)
-    float2 _NoisePeriod;
-    float3 _Displace;
+    float2 _Size;
+    float3 _Noise;
+    float4 _Displace;
 
-    // Base shape (cylinder).
-    float3 cylinder(float2 uv)
-    {
-        float x = uv.x - 0.5;
-        float y = 0;
-        float z = uv.y - 0.5;
-        return float3(x, y, z) * _SizeParams.xxy;
-    }
-
-    // Kernel 0 - position
+    // Pass 0: Calculates vertex positions
     float4 frag_position(v2f_img i) : SV_Target 
     {
-        float3 vp = cylinder(i.uv);
+        float2 vp = (i.uv.xy - (float2)0.5) * _Size;
 
-        float2 nc1 = i.uv * _NoiseParams.xy + _NoiseParams.zw;
+        float2 nc1 = (vp + _Noise.yz) * _Noise.x;
+        #if ENABLE_WARP
         float2 nc2 = nc1 + float2(124.343, 311.591);
         float2 nc3 = nc1 + float2(273.534, 178.392);
+        #endif
 
-        float2 np = _NoisePeriod;
+        float2 np = float2(100000, 100000);
 
-        float n1 = pnoise(nc1, np) + pnoise(nc1 * 2, np * 2) * 0.5 + pnoise(nc1 * 4, np * 4) * 0.25 + pnoise(nc1 * 8, np * 8) * 0.125;
-        float n2 = pnoise(nc2, np) + pnoise(nc2 * 2, np * 2) * 0.5 + pnoise(nc2 * 4, np * 4) * 0.25 + pnoise(nc1 * 8, np * 8) * 0.125;
-        float n3 = pnoise(nc3, np) + pnoise(nc3 * 2, np * 2) * 0.5 + pnoise(nc3 * 4, np * 4) * 0.25 + pnoise(nc1 * 8, np * 8) * 0.125;
+        float n1 = pnoise(nc1, np);
+        #if ENABLE_WARP
+        float n2 = pnoise(nc2, np);
+        float n3 = pnoise(nc3, np);
+        #endif
 
-        float3 v1 = float3(0, 1, 0);
-        float3 v2 = float3(0, 0, 1);
-        float3 v3 = float3(1, 0, 0);
+        #if DEPTH2 || DEPTH3 || DEPTH4 || DEPTH5
+        n1 += pnoise(nc1 * 2, np * 2) * 0.5;
+        #if ENABLE_WARP
+        n2 += pnoise(nc2 * 2, np * 2) * 0.5;
+        n3 += pnoise(nc3 * 2, np * 2) * 0.5;
+        #endif
+        #endif
 
-        float3 d = v1 * n1 * _Displace.x + v2 * n2 * _Displace.y + v3 * n3 * _Displace.z;
+        #if DEPTH3 || DEPTH4 || DEPTH5
+        n1 += pnoise(nc1 * 4, np * 4) * 0.25;
+        #if ENABLE_WARP
+        n2 += pnoise(nc2 * 4, np * 4) * 0.25;
+        n3 += pnoise(nc3 * 4, np * 4) * 0.25;
+        #endif
+        #endif
 
-        return float4(vp + d, 0);
+        #if DEPTH4 || DEPTH5
+        n1 += pnoise(nc1 * 8, np * 8) * 0.125;
+        #if ENABLE_WARP
+        n2 += pnoise(nc1 * 8, np * 8) * 0.125;
+        n3 += pnoise(nc1 * 8, np * 8) * 0.125;
+        #endif
+        #endif
+
+        #if DEPTH5
+        n1 += pnoise(nc1 * 16, np * 16) * 0.0625;
+        #if ENABLE_WARP
+        n2 += pnoise(nc1 * 16, np * 16) * 0.0625;
+        n3 += pnoise(nc1 * 16, np * 16) * 0.0625;
+        #endif
+        #endif
+
+        float3 op = float3(vp.x, 0, vp.y);
+
+        #if ENABLE_WARP
+        float3 d = float3(n2, n1, n3);
+        #else
+        float3 d = float3(0, n1, 0);
+        #endif
+
+        op += clamp(d, _Displace.y, _Displace.z) * _Displace.wxw;
+
+        return float4(op, 0);
     }
 
-    // Kernel 1 - normal vector for the 1st submesh
+    // Pass 1: Calculates normal vectors for the 1st submesh
     float4 frag_normal1(v2f_img i) : SV_Target 
     {
         float2 duv = _MainTex_TexelSize;
@@ -79,7 +103,7 @@ Shader "Hidden/Kvant/Lattice/Kernels"
         return float4(n, 0);
     }
 
-    // Kernel 2 - normal vector for the 2nd submesh
+    // Pass 2: Calculates normal vectors for the 2nd submesh
     float4 frag_normal2(v2f_img i) : SV_Target 
     {
         float2 duv = _MainTex_TexelSize;
@@ -99,30 +123,24 @@ Shader "Hidden/Kvant/Lattice/Kernels"
     {
         Pass
         {
-            Fog { Mode off }    
             CGPROGRAM
             #pragma target 3.0
-            #pragma glsl
             #pragma vertex vert_img
             #pragma fragment frag_position
             ENDCG
         }
         Pass
         {
-            Fog { Mode off }    
             CGPROGRAM
             #pragma target 3.0
-            #pragma glsl
             #pragma vertex vert_img
             #pragma fragment frag_normal1
             ENDCG
         }
         Pass
         {
-            Fog { Mode off }    
             CGPROGRAM
             #pragma target 3.0
-            #pragma glsl
             #pragma vertex vert_img
             #pragma fragment frag_normal2
             ENDCG

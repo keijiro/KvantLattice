@@ -16,9 +16,12 @@ namespace Kvant
         [SerializeField] Vector2 _size = Vector2.one * 10;
 
         [SerializeField] Vector2 _noiseOffset = Vector2.zero;
-        [SerializeField] int _noiseFrequency = 2;
+        [SerializeField, Range(1, 5)] int _noiseDepth = 4;
+        [SerializeField, Range(0, 1)] float _noiseFrequency = 2.0f;
         [SerializeField] float _noiseElevation = 0.5f;
-        [SerializeField] float _noiseWarp = 0.1f;
+        [SerializeField] float _noiseClampMin = -1.5f;
+        [SerializeField] float _noiseClampMax = 1.5f;
+        [SerializeField, Range(0, 1)] float _noiseWarp = 0.1f;
 
         [ColorUsage(true, true, 0, 8, 0.125f, 3)]
         [SerializeField] Color _surfaceColor = Color.white;
@@ -50,7 +53,7 @@ namespace Kvant
             set { _noiseOffset = value; }
         }
 
-        public int noiseFrequency {
+        public float noiseFrequency {
             get { return _noiseFrequency; }
             set { _noiseFrequency = value; }
         }
@@ -154,11 +157,21 @@ namespace Kvant
         void UpdateKernelShader()
         {
             var m = _kernelMaterial;
-            var nparams = new Vector4(1, 1, _noiseOffset.x, _noiseOffset.y) * _noiseFrequency;
-            m.SetVector("_SizeParams", _size);
-            m.SetVector("_NoiseParams", nparams);
-            m.SetVector("_NoisePeriod", new Vector3(100000, 100000));
-            m.SetVector("_Displace", new Vector3(_noiseElevation, _noiseWarp, _noiseWarp));
+
+            m.SetVector("_Size", _size);
+            m.SetVector("_Noise", new Vector4(_noiseFrequency, _noiseOffset.x, _noiseOffset.y));
+            m.SetVector("_Displace", new Vector4(_noiseElevation, _noiseClampMin, _noiseClampMax, _noiseElevation * _noiseWarp));
+
+            if (_noiseWarp > 0.0f)
+                m.EnableKeyword("ENABLE_WARP");
+            else
+                m.DisableKeyword("ENABLE_WARP");
+
+            for (var i = 1; i <= 5; i++)
+                if (i == _noiseDepth)
+                    m.EnableKeyword("DEPTH" + i);
+                else
+                    m.DisableKeyword("DEPTH" + i);
         }
 
         void UpdateDisplayShader()

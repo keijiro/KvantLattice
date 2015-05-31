@@ -14,7 +14,10 @@ namespace Kvant
         SerializedProperty propSize;
         SerializedProperty propNoiseOffset;
         SerializedProperty propNoiseFrequency;
+        SerializedProperty propNoiseDepth;
         SerializedProperty propNoiseElevation;
+        SerializedProperty propNoiseClampMin;
+        SerializedProperty propNoiseClampMax;
         SerializedProperty propNoiseWarp;
         SerializedProperty propSurfaceColor;
         SerializedProperty propLineColor;
@@ -22,6 +25,7 @@ namespace Kvant
 
         static GUIContent textOffset    = new GUIContent("Offset");
         static GUIContent textFrequency = new GUIContent("Frequency");
+        static GUIContent textDepth     = new GUIContent("Fractal Depth");
         static GUIContent textElevation = new GUIContent("Elevation");
         static GUIContent textWarp      = new GUIContent("Warp");
 
@@ -32,11 +36,30 @@ namespace Kvant
             propSize           = serializedObject.FindProperty("_size");
             propNoiseOffset    = serializedObject.FindProperty("_noiseOffset");
             propNoiseFrequency = serializedObject.FindProperty("_noiseFrequency");
+            propNoiseDepth     = serializedObject.FindProperty("_noiseDepth");
             propNoiseElevation = serializedObject.FindProperty("_noiseElevation");
+            propNoiseClampMin  = serializedObject.FindProperty("_noiseClampMin");
+            propNoiseClampMax  = serializedObject.FindProperty("_noiseClampMax");
             propNoiseWarp      = serializedObject.FindProperty("_noiseWarp");
             propSurfaceColor   = serializedObject.FindProperty("_surfaceColor");
             propLineColor      = serializedObject.FindProperty("_lineColor");
             propDebug          = serializedObject.FindProperty("_debug");
+        }
+
+        void MinMaxSlider(string label, SerializedProperty propMin, SerializedProperty propMax, float minLimit, float maxLimit, string format)
+        {
+            var min = propMin.floatValue;
+            var max = propMax.floatValue;
+
+            EditorGUI.BeginChangeCheck();
+
+            var text = new GUIContent(label + " (" + min.ToString(format) + "," + max.ToString(format) + ")");
+            EditorGUILayout.MinMaxSlider(text, ref min, ref max, minLimit, maxLimit);
+
+            if (EditorGUI.EndChangeCheck()) {
+                propMin.floatValue = min;
+                propMax.floatValue = max;
+            }
         }
 
         public override void OnInspectorGUI()
@@ -65,6 +88,8 @@ namespace Kvant
             EditorGUI.indentLevel++;
             EditorGUILayout.PropertyField(propNoiseOffset, textOffset);
             EditorGUILayout.PropertyField(propNoiseFrequency, textFrequency);
+            EditorGUILayout.PropertyField(propNoiseDepth, textDepth);
+            MinMaxSlider("Clamp", propNoiseClampMin, propNoiseClampMax, -1.5f, 1.5f, "0.0");
             EditorGUILayout.PropertyField(propNoiseElevation, textElevation);
             EditorGUILayout.PropertyField(propNoiseWarp, textWarp);
             EditorGUI.indentLevel--;
