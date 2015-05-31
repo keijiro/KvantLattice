@@ -18,9 +18,12 @@ Shader "Hidden/Kvant/Lattice/Line"
 
     #include "UnityCG.cginc"
 
+    #pragma multi_compile_fog
+
     struct v2f
     {
         float4 position : SV_POSITION;
+        UNITY_FOG_COORDS(0)
     };
 
     sampler2D _PositionTex;
@@ -36,12 +39,17 @@ Shader "Hidden/Kvant/Lattice/Line"
 
         v2f o;
         o.position = mul(UNITY_MATRIX_MVP, pos);
+
+        UNITY_TRANSFER_FOG(o, o.position);
+
         return o;
     }
 
     half4 frag(v2f i) : COLOR
     {
-        return _Color;
+        half4 c = _Color;
+        UNITY_APPLY_FOG(i.fogCoord, c);
+        return c;
     }
 
     ENDCG
