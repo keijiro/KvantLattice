@@ -32,14 +32,12 @@ namespace Kvant
 
         #region Public Properties
 
-        public int columns { get { return _columns; } }
+        public int columns {
+            get { return _columns; }
+        }
 
         public int rows {
-            // Returns the actual number of rows.
-            get {
-                var rps = rowsPerSegment;
-                return (_rows + rps - 1) / rps * rps;
-            }
+            get { return _totalRows; }
         }
 
         public Vector2 size {
@@ -96,9 +94,13 @@ namespace Kvant
 
         #region Private Variables And Objects
 
+        int _rowsPerSegment;
+        int _totalRows;
+
         RenderTexture _positionBuffer;
         RenderTexture _normalBuffer1;
         RenderTexture _normalBuffer2;
+
         BulkMesh _bulkMesh;
         bool _needsReset = true;
 
@@ -106,15 +108,20 @@ namespace Kvant
 
         #region Private Properties
 
-        int rowsPerSegment {
-            get {
-                // Estimate the total count of vertices.
-                var total_vc = (_columns + 1) * (_rows + 1) * 6;
-                // Number of segments.
-                var segments = total_vc / 65000 + 1;
-                // Rows per segment.
-                return segments > 1 ? (_rows / segments) / 2 * 2 : _rows;
-            }
+        void UpdateColumnAndRowCounts()
+        {
+            // Sanitize the numbers.
+            _columns = Mathf.Clamp(_columns, 4, 4096);
+            _rows = Mathf.Clamp(_rows, 4, 4096);
+
+            // Total number of vertices.
+            var total_vc = (_columns + 1) * (_rows + 1) * 6;
+
+            // Number of segments.
+            var segments = total_vc / 65000 + 1;
+
+            _rowsPerSegment = segments > 1 ? (_rows / segments) / 2 * 2 : _rows;
+            _totalRows = _rowsPerSegment * segments;
         }
 
         #endregion
@@ -136,7 +143,7 @@ namespace Kvant
         RenderTexture CreateBuffer()
         {
             var width = (_columns + 1) * 2;
-            var height = rows + 1;
+            var height = _totalRows + 1;
             var buffer = new RenderTexture(width, height, 0, RenderTextureFormat.ARGBFloat);
             buffer.hideFlags = HideFlags.DontSave;
             buffer.filterMode = FilterMode.Point;
@@ -163,15 +170,13 @@ namespace Kvant
 
         void ResetResources()
         {
-            // Sanitize the parameters.
-            _columns = Mathf.Clamp(_columns, 4, 1024);
-            _rows = Mathf.Clamp(_rows, 4, 1024);
+            UpdateColumnAndRowCounts();
 
             // Mesh object.
             if (_bulkMesh == null)
-                _bulkMesh = new BulkMesh(_columns, rowsPerSegment, rows);
+                _bulkMesh = new BulkMesh(_columns, _rowsPerSegment, _totalRows);
             else
-                _bulkMesh.Rebuild(_columns, rowsPerSegment, rows);
+                _bulkMesh.Rebuild(_columns, _rowsPerSegment, _totalRows);
 
             // Displacement buffers.
             if (_positionBuffer) DestroyImmediate(_positionBuffer);
@@ -241,10 +246,8 @@ namespace Kvant
             var uv = new Vector2(0.5f / _positionBuffer.width, 0);
             var offs = new MaterialPropertyBlock();
             var mesh = _bulkMesh.mesh;
-            var rps = rowsPerSegment;
-            var rowCount = rows;
 
-            for (var i = 0; i < rowCount; i += rps)
+            for (var i = 0; i < _totalRows; i += _rowsPerSegment)
             {
                 uv.y = (0.5f + i) / _positionBuffer.height;
 
