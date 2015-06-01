@@ -9,57 +9,73 @@ namespace Kvant
     [CustomEditor(typeof(Lattice)), CanEditMultipleObjects]
     public class LatticeEditor : Editor
     {
-        SerializedProperty propColumns;
-        SerializedProperty propRows;
-        SerializedProperty propSize;
-        SerializedProperty propNoiseOffset;
-        SerializedProperty propNoiseFrequency;
-        SerializedProperty propNoiseDepth;
-        SerializedProperty propNoiseElevation;
-        SerializedProperty propNoiseClampMin;
-        SerializedProperty propNoiseClampMax;
-        SerializedProperty propNoiseWarp;
-        SerializedProperty propSurfaceColor;
-        SerializedProperty propLineColor;
-        SerializedProperty propDebug;
+        SerializedProperty _columns;
+        SerializedProperty _rows;
+        SerializedProperty _size;
 
-        static GUIContent textOffset    = new GUIContent("Offset");
-        static GUIContent textFrequency = new GUIContent("Frequency");
-        static GUIContent textDepth     = new GUIContent("Fractal Depth");
-        static GUIContent textElevation = new GUIContent("Elevation");
-        static GUIContent textWarp      = new GUIContent("Warp");
+        SerializedProperty _noiseOffset;
+        SerializedProperty _noiseFrequency;
+        SerializedProperty _noiseDepth;
+        SerializedProperty _noiseClampMin;
+        SerializedProperty _noiseClampMax;
+        SerializedProperty _noiseElevation;
+        SerializedProperty _noiseWarp;
+
+        SerializedProperty _surfaceColor;
+        SerializedProperty _lineColor;
+        SerializedProperty _metallic;
+        SerializedProperty _smoothness;
+        SerializedProperty _castShadows;
+        SerializedProperty _receiveShadows;
+
+        SerializedProperty _albedoMap;
+        SerializedProperty _normalMap;
+        SerializedProperty _occlusionMap;
+        SerializedProperty _occlusionStrength;
+        SerializedProperty _mapScale;
+
+        SerializedProperty _debug;
+
+        static GUIContent _textOffset    = new GUIContent("Offset");
+        static GUIContent _textFrequency = new GUIContent("Frequency");
+        static GUIContent _textDepth     = new GUIContent("Depth");
+        static GUIContent _textClamp     = new GUIContent("Clamp");
+        static GUIContent _textElevation = new GUIContent("Elevation");
+        static GUIContent _textWarp      = new GUIContent("Warp");
+        static GUIContent _textAlbedo    = new GUIContent("Albedo");
+        static GUIContent _textNormal    = new GUIContent("Normal");
+        static GUIContent _textOcclusion = new GUIContent("Occlusion");
+        static GUIContent _textScale     = new GUIContent("Scale");
+        static GUIContent _textEmpty     = new GUIContent(" ");
 
         void OnEnable()
         {
-            propColumns        = serializedObject.FindProperty("_columns");
-            propRows           = serializedObject.FindProperty("_rows");
-            propSize           = serializedObject.FindProperty("_size");
-            propNoiseOffset    = serializedObject.FindProperty("_noiseOffset");
-            propNoiseFrequency = serializedObject.FindProperty("_noiseFrequency");
-            propNoiseDepth     = serializedObject.FindProperty("_noiseDepth");
-            propNoiseElevation = serializedObject.FindProperty("_noiseElevation");
-            propNoiseClampMin  = serializedObject.FindProperty("_noiseClampMin");
-            propNoiseClampMax  = serializedObject.FindProperty("_noiseClampMax");
-            propNoiseWarp      = serializedObject.FindProperty("_noiseWarp");
-            propSurfaceColor   = serializedObject.FindProperty("_surfaceColor");
-            propLineColor      = serializedObject.FindProperty("_lineColor");
-            propDebug          = serializedObject.FindProperty("_debug");
-        }
+            _columns = serializedObject.FindProperty("_columns");
+            _rows    = serializedObject.FindProperty("_rows");
+            _size    = serializedObject.FindProperty("_size");
 
-        void MinMaxSlider(string label, SerializedProperty propMin, SerializedProperty propMax, float minLimit, float maxLimit, string format)
-        {
-            var min = propMin.floatValue;
-            var max = propMax.floatValue;
+            _noiseOffset    = serializedObject.FindProperty("_noiseOffset");
+            _noiseFrequency = serializedObject.FindProperty("_noiseFrequency");
+            _noiseDepth     = serializedObject.FindProperty("_noiseDepth");
+            _noiseClampMin  = serializedObject.FindProperty("_noiseClampMin");
+            _noiseClampMax  = serializedObject.FindProperty("_noiseClampMax");
+            _noiseElevation = serializedObject.FindProperty("_noiseElevation");
+            _noiseWarp      = serializedObject.FindProperty("_noiseWarp");
 
-            EditorGUI.BeginChangeCheck();
+            _surfaceColor   = serializedObject.FindProperty("_surfaceColor");
+            _lineColor      = serializedObject.FindProperty("_lineColor");
+            _metallic       = serializedObject.FindProperty("_metallic");
+            _smoothness     = serializedObject.FindProperty("_smoothness");
+            _castShadows    = serializedObject.FindProperty("_castShadows");
+            _receiveShadows = serializedObject.FindProperty("_receiveShadows");
 
-            var text = new GUIContent(label + " (" + min.ToString(format) + "," + max.ToString(format) + ")");
-            EditorGUILayout.MinMaxSlider(text, ref min, ref max, minLimit, maxLimit);
+            _albedoMap         = serializedObject.FindProperty("_albedoMap");
+            _normalMap         = serializedObject.FindProperty("_normalMap");
+            _occlusionMap      = serializedObject.FindProperty("_occlusionMap");
+            _occlusionStrength = serializedObject.FindProperty("_occlusionStrength");
+            _mapScale          = serializedObject.FindProperty("_mapScale");
 
-            if (EditorGUI.EndChangeCheck()) {
-                propMin.floatValue = min;
-                propMax.floatValue = max;
-            }
+            _debug = serializedObject.FindProperty("_debug");
         }
 
         public override void OnInspectorGUI()
@@ -70,40 +86,94 @@ namespace Kvant
 
             EditorGUI.BeginChangeCheck();
 
-            EditorGUILayout.PropertyField(propColumns);
-            EditorGUILayout.PropertyField(propRows);
+            EditorGUILayout.PropertyField(_columns);
+            EditorGUILayout.PropertyField(_rows);
 
-            if (!propRows.hasMultipleDifferentValues)
-                EditorGUILayout.HelpBox("Actual Number: " + targetLattice.rows, MessageType.None);
+            if (!_rows.hasMultipleDifferentValues)
+            {
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.PrefixLabel(_textEmpty);
+                EditorGUILayout.LabelField("Effective Rows: " + targetLattice.rows, EditorStyles.miniLabel);
+                EditorGUILayout.EndHorizontal();
+            }
 
-            if (EditorGUI.EndChangeCheck()) targetLattice.NotifyConfigChange();
+            if (EditorGUI.EndChangeCheck())
+                targetLattice.NotifyConfigChange();
 
             EditorGUILayout.Space();
 
-            EditorGUILayout.PropertyField(propSize);
+            EditorGUILayout.PropertyField(_size);
 
             EditorGUILayout.Space();
 
-            EditorGUILayout.LabelField("Fractal Noise");
+            EditorGUILayout.LabelField("Fractal Noise", EditorStyles.boldLabel);
             EditorGUI.indentLevel++;
-            EditorGUILayout.PropertyField(propNoiseOffset, textOffset);
-            EditorGUILayout.PropertyField(propNoiseFrequency, textFrequency);
-            EditorGUILayout.PropertyField(propNoiseDepth, textDepth);
-            MinMaxSlider("Clamp", propNoiseClampMin, propNoiseClampMax, -1.5f, 1.5f, "0.0");
-            EditorGUILayout.PropertyField(propNoiseElevation, textElevation);
-            EditorGUILayout.PropertyField(propNoiseWarp, textWarp);
+            EditorGUILayout.PropertyField(_noiseOffset, _textOffset);
+            EditorGUILayout.PropertyField(_noiseFrequency, _textFrequency);
+            EditorGUILayout.PropertyField(_noiseDepth, _textDepth);
+            MinMaxSlider(_textClamp, _noiseClampMin, _noiseClampMax, -1.5f, 1.5f);
+            EditorGUILayout.PropertyField(_noiseElevation, _textElevation);
+            EditorGUILayout.PropertyField(_noiseWarp, _textWarp);
             EditorGUI.indentLevel--;
 
             EditorGUILayout.Space();
 
-            EditorGUILayout.PropertyField(propSurfaceColor);
-            EditorGUILayout.PropertyField(propLineColor);
+            EditorGUILayout.LabelField("Rendering", EditorStyles.boldLabel);
+            EditorGUI.indentLevel++;
+            EditorGUILayout.PropertyField(_surfaceColor);
+            EditorGUILayout.PropertyField(_lineColor);
+            EditorGUILayout.PropertyField(_metallic);
+            EditorGUILayout.PropertyField(_smoothness);
+            EditorGUILayout.PropertyField(_castShadows);
+            EditorGUILayout.PropertyField(_receiveShadows);
+            EditorGUI.indentLevel--;
 
             EditorGUILayout.Space();
 
-            EditorGUILayout.PropertyField(propDebug);
+            EditorGUILayout.LabelField("Triplanar Mapping", EditorStyles.boldLabel);
+            EditorGUI.indentLevel++;
+            EditorGUILayout.PropertyField(_albedoMap, _textAlbedo);
+            EditorGUILayout.PropertyField(_normalMap, _textNormal);
+            EditorGUILayout.PropertyField(_occlusionMap, _textOcclusion);
+            if (_occlusionMap.hasMultipleDifferentValues || _occlusionMap.objectReferenceValue)
+                EditorGUILayout.PropertyField(_occlusionStrength, _textEmpty);
+            EditorGUILayout.PropertyField(_mapScale, _textScale);
+            EditorGUI.indentLevel--;
+
+            EditorGUILayout.Space();
+
+            EditorGUILayout.PropertyField(_debug);
 
             serializedObject.ApplyModifiedProperties();
+        }
+
+        void MinMaxSlider(GUIContent label, SerializedProperty propMin, SerializedProperty propMax, float minLimit, float maxLimit)
+        {
+            var min = propMin.floatValue;
+            var max = propMax.floatValue;
+
+            EditorGUI.BeginChangeCheck();
+
+            // Min-max slider.
+            EditorGUILayout.MinMaxSlider(label, ref min, ref max, minLimit, maxLimit);
+
+            var prevIndent = EditorGUI.indentLevel;
+            EditorGUI.indentLevel = 0;
+
+            // Float value boxes.
+            var rect = EditorGUILayout.GetControlRect();
+            rect.x += EditorGUIUtility.labelWidth;
+            rect.width = (rect.width - EditorGUIUtility.labelWidth) / 3;
+            min = EditorGUI.FloatField(rect, min);
+            rect.x += rect.width * 2;
+            max = EditorGUI.FloatField(rect, max);
+
+            EditorGUI.indentLevel = prevIndent;
+
+            if (EditorGUI.EndChangeCheck()) {
+                propMin.floatValue = min;
+                propMax.floatValue = max;
+            }
         }
     }
 }

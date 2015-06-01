@@ -11,25 +11,71 @@ namespace Kvant
     {
         #region Parameters Exposed To Editor
 
-        [SerializeField] int _columns = 100;
-        [SerializeField] int _rows = 100;
-        [SerializeField] Vector2 _size = Vector2.one * 10;
+        [SerializeField]
+        int _columns = 100;
 
-        [SerializeField] Vector2 _noiseOffset = Vector2.zero;
-        [SerializeField, Range(1, 5)] int _noiseDepth = 4;
-        [SerializeField, Range(0, 1)] float _noiseFrequency = 2.0f;
-        [SerializeField] float _noiseElevation = 0.5f;
-        [SerializeField] float _noiseClampMin = -1.5f;
-        [SerializeField] float _noiseClampMax = 1.5f;
-        [SerializeField, Range(0, 1)] float _noiseWarp = 0.1f;
+        [SerializeField]
+        int _rows = 100;
 
-        [ColorUsage(true, true, 0, 8, 0.125f, 3)]
-        [SerializeField] Color _surfaceColor = Color.white;
+        [SerializeField]
+        Vector2 _size = Vector2.one * 10;
 
-        [ColorUsage(true, true, 0, 8, 0.125f, 3)]
-        [SerializeField] Color _lineColor = new Color(0, 0, 0, 0.4f);
+        [SerializeField]
+        Vector2 _noiseOffset = Vector2.zero;
 
-        [SerializeField] bool _debug;
+        [SerializeField, Range(0, 1)]
+        float _noiseFrequency = 2.0f;
+
+        [SerializeField, Range(1, 5)]
+        int _noiseDepth = 4;
+
+        [SerializeField]
+        float _noiseClampMin = -1.5f;
+
+        [SerializeField]
+        float _noiseClampMax = 1.5f;
+
+        [SerializeField]
+        float _noiseElevation = 0.5f;
+
+        [SerializeField, Range(0, 1)]
+        float _noiseWarp = 0.1f;
+
+        [SerializeField]
+        Color _surfaceColor = Color.white;
+
+        [SerializeField, ColorUsage(true, true, 0, 8, 0.125f, 3)]
+        Color _lineColor = new Color(0, 0, 0, 0.4f);
+
+        [SerializeField, Range(0, 1)]
+        float _metallic = 0.5f;
+
+        [SerializeField, Range(0, 1)]
+        float _smoothness = 0.5f;
+
+        [SerializeField]
+        ShadowCastingMode _castShadows;
+
+        [SerializeField]
+        bool _receiveShadows = false;
+
+        [SerializeField]
+        Texture2D _albedoMap;
+
+        [SerializeField]
+        Texture2D _normalMap;
+
+        [SerializeField]
+        Texture2D _occlusionMap;
+
+        [SerializeField, Range(0, 1)]
+        float _occlusionStrength;
+
+        [SerializeField]
+        float _mapScale = 1.0f;
+
+        [SerializeField]
+        bool _debug;
 
         #endregion
 
@@ -58,6 +104,21 @@ namespace Kvant
             set { _noiseFrequency = value; }
         }
 
+        public int noiseDepth {
+            get { return _noiseDepth; }
+            set { _noiseDepth = value; }
+        }
+
+        public float noiseClampMin {
+            get { return _noiseClampMin; }
+            set { _noiseClampMin = value; }
+        }
+
+        public float noiseClampMax {
+            get { return _noiseClampMax; }
+            set { _noiseClampMax = value; }
+        }
+
         public float noiseElevation {
             get { return _noiseElevation; }
             set { _noiseElevation = value; }
@@ -76,6 +137,46 @@ namespace Kvant
         public Color lineColor {
             get { return _lineColor; }
             set { _lineColor = value; }
+        }
+
+        public float metallic {
+            get { return _metallic; }
+            set { _metallic = value; }
+        }
+
+        public float smoothness {
+            get { return _smoothness; }
+            set { _smoothness = value; }
+        }
+
+        public ShadowCastingMode shadowCastingMode {
+            get { return _castShadows; }
+            set { _castShadows = value; }
+        }
+
+        public bool receiveShadows {
+            get { return _receiveShadows; }
+            set { _receiveShadows = value; }
+        }
+
+        public Texture2D albedoMap {
+            get { return _albedoMap; }
+            set { _albedoMap = value; }
+        }
+
+        public Texture2D normalMap {
+            get { return _normalMap; }
+            set { _normalMap = value; }
+        }
+
+        public Texture2D occlusionMap {
+            get { return _occlusionMap; }
+            set { _occlusionMap = value; }
+        }
+
+        public float mapScale {
+            get { return _mapScale; }
+            set { _mapScale = value; }
         }
 
         #endregion
@@ -167,18 +268,43 @@ namespace Kvant
             else
                 m.DisableKeyword("ENABLE_WARP");
 
-            for (var i = 1; i <= 5; i++)
+            for (var i = 1; i <= 5; i++) {
                 if (i == _noiseDepth)
                     m.EnableKeyword("DEPTH" + i);
                 else
                     m.DisableKeyword("DEPTH" + i);
+            }
         }
 
-        void UpdateDisplayShader()
+        void UpdateSurfaceMaterial(Material m)
         {
-            _surfaceMaterial1.SetColor("_Color", _surfaceColor);
-            _surfaceMaterial2.SetColor("_Color", _surfaceColor);
-            _lineMaterial.SetColor("_Color", _lineColor);
+            m.SetColor("_Color", _surfaceColor);
+            m.SetVector("_PbrParams", new Vector2(_metallic, _smoothness));
+
+            if (_albedoMap) {
+                m.SetTexture("_MainTex", _albedoMap);
+                m.EnableKeyword("_ALBEDOMAP");
+            } else {
+                m.DisableKeyword("_ALBEDOMAP");
+            }
+
+            if (_normalMap) {
+                m.SetTexture("_BumpMap", _normalMap);
+                m.EnableKeyword("_NORMALMAP");
+            } else {
+                m.DisableKeyword("_NORMALMAP");
+            }
+
+            if (_occlusionMap) {
+                m.SetTexture("_OcclusionMap", _occlusionMap);
+                m.SetFloat("_OcclusionStrength", _occlusionStrength);
+                m.EnableKeyword("_OCCLUSIONMAP");
+            }
+            else {
+                m.DisableKeyword("_OCCLUSIONMAP");
+            }
+
+            m.SetVector("_MapParams", new Vector4(_noiseOffset.x, 0, _noiseOffset.y, _mapScale));
         }
 
         void ResetResources()
@@ -243,34 +369,34 @@ namespace Kvant
         {
             if (_needsReset) ResetResources();
 
-            UpdateKernelShader();
-
             // Execute the kernel shaders.
+            UpdateKernelShader();
             Graphics.Blit(null, _positionBuffer, _kernelMaterial, 0);
             Graphics.Blit(_positionBuffer, _normalBuffer1, _kernelMaterial, 1);
             Graphics.Blit(_positionBuffer, _normalBuffer2, _kernelMaterial, 2);
 
-            // Draw the bulk mesh.
-            UpdateDisplayShader();
+            // Update the display materials.
+            UpdateSurfaceMaterial(_surfaceMaterial1);
+            UpdateSurfaceMaterial(_surfaceMaterial2);
+            _lineMaterial.SetColor("_Color", _lineColor);
 
-            var p = transform.position;
-            var r = transform.rotation;
-
+            // Fill segments with the bulk mesh.
+            var mesh = _bulkMesh.mesh;
             var uv = new Vector2(0.5f / _positionBuffer.width, 0);
             var offs = new MaterialPropertyBlock();
-            var mesh = _bulkMesh.mesh;
+            var p = transform.position;
+            var r = transform.rotation;
 
             for (var i = 0; i < _totalRows; i += _rowsPerSegment)
             {
                 uv.y = (0.5f + i) / _positionBuffer.height;
-
                 offs.AddVector("_UVOffset", uv);
 
-                Graphics.DrawMesh(mesh, p, r, _surfaceMaterial1, 0, null, 0, offs);
-                Graphics.DrawMesh(mesh, p, r, _surfaceMaterial2, 0, null, 1, offs);
+                Graphics.DrawMesh(mesh, p, r, _surfaceMaterial1, 0, null, 0, offs, _castShadows, _receiveShadows);
+                Graphics.DrawMesh(mesh, p, r, _surfaceMaterial2, 0, null, 1, offs, _castShadows, _receiveShadows);
 
                 if (_lineColor.a > 0.0f)
-                    Graphics.DrawMesh(mesh, p, r, _lineMaterial, 0, null, 2, offs);
+                    Graphics.DrawMesh(mesh, p, r, _lineMaterial, 0, null, 2, offs, false, false);
             }
         }
 
