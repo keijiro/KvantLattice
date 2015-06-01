@@ -45,14 +45,14 @@ Material:
           m_Offset: {x: 0, y: 0}
       data:
         first:
-          name: _ParallaxMap
+          name: _OcclusionMap
         second:
           m_Texture: {fileID: 0}
           m_Scale: {x: 1, y: 1}
           m_Offset: {x: 0, y: 0}
       data:
         first:
-          name: _OcclusionMap
+          name: _ParallaxMap
         second:
           m_Texture: {fileID: 0}
           m_Scale: {x: 1, y: 1}
@@ -101,6 +101,10 @@ Material:
       data:
         first:
           name: _Exposure
+        second: .800000012
+      data:
+        first:
+          name: _OcclusionStrength
         second: 1
       data:
         first:
@@ -117,10 +121,6 @@ Material:
       data:
         first:
           name: _BumpScale
-        second: 1
-      data:
-        first:
-          name: _OcclusionStrength
         second: 1
       data:
         first:

@@ -15,9 +15,9 @@ RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 6
   m_Fog: 1
-  m_FogColor: {r: .529411793, g: .529411793, b: .529411793, a: 1}
+  m_FogColor: {r: .314506054, g: .311418712, b: .33088237, a: 1}
   m_FogMode: 3
-  m_FogDensity: .00999999978
+  m_FogDensity: .0140000004
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
   m_AmbientSkyColor: {r: .211999997, g: .226999998, b: .259000003, a: 1}
@@ -53,8 +53,8 @@ LightmapSettings:
     m_AlbedoBoost: 1
     m_TemporalCoherenceThreshold: 1
     m_EnvironmentLightingMode: 0
-    m_EnableBakedLightmaps: 1
-    m_EnableRealtimeLightmaps: 1
+    m_EnableBakedLightmaps: 0
+    m_EnableRealtimeLightmaps: 0
   m_LightmapEditorSettings:
     serializedVersion: 3
     m_Resolution: 2
@@ -112,13 +112,13 @@ Light:
   m_Enabled: 1
   serializedVersion: 6
   m_Type: 1
-  m_Color: {r: 1, g: .956862748, b: .839215696, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
   m_CookieSize: 10
   m_Shadows:
-    m_Type: 2
+    m_Type: 1
     m_Resolution: -1
     m_Strength: 1
     m_Bias: .0500000007
@@ -141,7 +141,7 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 878646547}
-  m_LocalRotation: {x: .408217937, y: -.234569728, z: .109381676, w: .875426054}
+  m_LocalRotation: {x: .105693936, y: -.89424175, z: .313159019, w: .301814497}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -174,15 +174,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 707f38db09f5c4f19bb312c9b6160423, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _columns: 685
-  _rows: 1024
-  _size: {x: 502.23999, y: 499.799988}
-  _noiseOffset: {x: 0, y: 0}
-  _noiseFrequency: 35
-  _noiseElevation: 8.27999973
-  _noiseWarp: 1.54999995
-  _surfaceColor: {r: 1, g: 1, b: 1, a: 1}
-  _lineColor: {r: .25, g: 0, b: 0, a: .400000006}
+  _columns: 700
+  _rows: 700
+  _size: {x: 300, y: 300}
+  _noiseOffset: {x: 8.80000019, y: 9.93999958}
+  _noiseFrequency: .135000005
+  _noiseDepth: 5
+  _noiseClampMin: 0
+  _noiseClampMax: .600000024
+  _noiseElevation: 3.36999989
+  _noiseWarp: 0
+  _surfaceColor: {r: .602941155, g: .291319638, b: .199502602, a: 1}
+  _lineColor: {r: 0, g: 0, b: 0, a: .697000027}
+  _metallic: .488999993
+  _smoothness: .316000015
+  _castShadows: 1
+  _receiveShadows: 1
+  _albedoMap: {fileID: 2800000, guid: 0c2641f16f0c74dc8bd65cc0f24b03df, type: 3}
+  _normalMap: {fileID: 2800000, guid: 912fe0350b83a4934aa3799ef6fced00, type: 3}
+  _occlusionMap: {fileID: 2800000, guid: c8fd564835bc6474c84c6798e7d7e2b5, type: 3}
+  _occlusionStrength: .386999995
+  _mapScale: .180000007
   _debug: 0
   _kernelShader: {fileID: 4800000, guid: cc0a7661a4d054189b5c00584b5c766a, type: 3}
   _surfaceShader: {fileID: 4800000, guid: cf62a4ebaed0d4e709d8873a9765171d, type: 3}
@@ -248,8 +260,8 @@ Camera:
   m_GameObject: {fileID: 1706064114}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: .192156866, g: .301960796, b: .474509805, a: .0196078438}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: .314506054, g: .311418712, b: .33088237, a: 1}
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
@@ -279,8 +291,8 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1706064114}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: .271734297, y: .0165114421, z: .0401886962, w: .961391032}
+  m_LocalPosition: {x: -12.4700003, y: 8.10000038, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
