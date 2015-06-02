@@ -93,14 +93,12 @@ namespace Kvant
             {
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.PrefixLabel(_textEmpty);
-                EditorGUILayout.LabelField("Effective Rows: " + targetLattice.rows, EditorStyles.miniLabel);
+                EditorGUILayout.LabelField("Allocated: " + targetLattice.rows, EditorStyles.miniLabel);
                 EditorGUILayout.EndHorizontal();
             }
 
             if (EditorGUI.EndChangeCheck())
                 targetLattice.NotifyConfigChange();
-
-            EditorGUILayout.Space();
 
             EditorGUILayout.PropertyField(_size);
 
@@ -163,10 +161,22 @@ namespace Kvant
             // Float value boxes.
             var rect = EditorGUILayout.GetControlRect();
             rect.x += EditorGUIUtility.labelWidth;
-            rect.width = (rect.width - EditorGUIUtility.labelWidth) / 3;
-            min = EditorGUI.FloatField(rect, min);
-            rect.x += rect.width * 2;
-            max = EditorGUI.FloatField(rect, max);
+            rect.width = (rect.width - EditorGUIUtility.labelWidth) / 2 - 2;
+
+            if (EditorGUIUtility.wideMode)
+            {
+                EditorGUIUtility.labelWidth = 28;
+                min = EditorGUI.FloatField(rect, "min", min);
+                rect.x += rect.width + 4;
+                max = EditorGUI.FloatField(rect, "max", max);
+                EditorGUIUtility.labelWidth = 0;
+            }
+            else
+            {
+                min = EditorGUI.FloatField(rect, min);
+                rect.x += rect.width + 4;
+                max = EditorGUI.FloatField(rect, max);
+            }
 
             EditorGUI.indentLevel = prevIndent;
 
