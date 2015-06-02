@@ -365,7 +365,7 @@ namespace Kvant
             if (_debugMaterial)    DestroyImmediate(_debugMaterial);
         }
 
-        void Update()
+        void LateUpdate()
         {
             if (_needsReset) ResetResources();
 
