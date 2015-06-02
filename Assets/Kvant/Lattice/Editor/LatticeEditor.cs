@@ -90,12 +90,7 @@ namespace Kvant
             EditorGUILayout.PropertyField(_rows);
 
             if (!_rows.hasMultipleDifferentValues)
-            {
-                EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.PrefixLabel(_textEmpty);
-                EditorGUILayout.LabelField("Allocated: " + targetLattice.rows, EditorStyles.miniLabel);
-                EditorGUILayout.EndHorizontal();
-            }
+                EditorGUILayout.LabelField(" ", "Allocated: " + targetLattice.rows, EditorStyles.miniLabel);
 
             if (EditorGUI.EndChangeCheck())
                 targetLattice.NotifyConfigChange();
@@ -166,16 +161,16 @@ namespace Kvant
             if (EditorGUIUtility.wideMode)
             {
                 EditorGUIUtility.labelWidth = 28;
-                min = EditorGUI.FloatField(rect, "min", min);
+                min = Mathf.Clamp(EditorGUI.FloatField(rect, "min", min), minLimit, max);
                 rect.x += rect.width + 4;
-                max = EditorGUI.FloatField(rect, "max", max);
+                max = Mathf.Clamp(EditorGUI.FloatField(rect, "max", max), min, maxLimit);
                 EditorGUIUtility.labelWidth = 0;
             }
             else
             {
-                min = EditorGUI.FloatField(rect, min);
+                min = Mathf.Clamp(EditorGUI.FloatField(rect, min), minLimit, max);
                 rect.x += rect.width + 4;
-                max = EditorGUI.FloatField(rect, max);
+                max = Mathf.Clamp(EditorGUI.FloatField(rect, max), min, maxLimit);
             }
 
             EditorGUI.indentLevel = prevIndent;
