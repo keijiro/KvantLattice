@@ -20,15 +20,17 @@ Shader "Hidden/Kvant/Lattice/Kernels"
     float2 _MainTex_TexelSize;
 
     float2 _Extent;
-    float3 _Noise;    // (freq, offs_x, offs_y)
-    float4 _Displace; // (elevation, min, max, warp)
+    float2 _Offset;
+    float _Frequency;
+    float3 _Amplitude;
+    float2 _ClampRange;
 
     // Pass 0: Calculates vertex positions
     float4 frag_position(v2f_img i) : SV_Target 
     {
         float2 vp = (i.uv.xy - (float2)0.5) * _Extent;
 
-        float2 nc1 = (vp + _Noise.yz) * _Noise.x;
+        float2 nc1 = (vp + _Offset) * _Frequency;
         #if ENABLE_WARP
         float2 nc2 = nc1 + float2(124.343, 311.591);
         float2 nc3 = nc1 + float2(273.534, 178.392);
@@ -82,7 +84,7 @@ Shader "Hidden/Kvant/Lattice/Kernels"
         float3 d = float3(0, n1, 0);
         #endif
 
-        op += clamp(d, _Displace.y, _Displace.z) * _Displace.wxw;
+        op += clamp(d, _ClampRange.x, _ClampRange.y) * _Amplitude;
 
         return float4(op, 0);
     }

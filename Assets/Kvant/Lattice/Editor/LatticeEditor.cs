@@ -81,7 +81,7 @@ namespace Kvant
             EditorGUILayout.LabelField("Fractal Noise", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(_noiseFrequency, _textFrequency);
             EditorGUILayout.PropertyField(_noiseDepth, _textDepth);
-            MinMaxSlider(_textClamp, _noiseClampMin, _noiseClampMax, -1.5f, 1.5f);
+            MinMaxSlider(_textClamp, _noiseClampMin, _noiseClampMax, -1.0f, 1.0f);
             EditorGUILayout.PropertyField(_noiseElevation, _textElevation);
             EditorGUILayout.PropertyField(_noiseWarp, _textWarp);
 

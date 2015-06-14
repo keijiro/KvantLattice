@@ -228,8 +228,10 @@ namespace Kvant
             var m = _kernelMaterial;
 
             m.SetVector("_Extent", _extent);
-            m.SetVector("_Noise", new Vector4(_noiseFrequency, UOffset, VOffset));
-            m.SetVector("_Displace", new Vector4(_noiseElevation, _noiseClampMin, _noiseClampMax, _noiseElevation * _noiseWarp));
+            m.SetVector("_Offset", new Vector2(UOffset, VOffset));
+            m.SetFloat("_Frequency", _noiseFrequency);
+            m.SetVector("_Amplitude", new Vector3(_noiseWarp, 1, _noiseWarp) * _noiseElevation);
+            m.SetVector("_ClampRange", new Vector2(_noiseClampMin, _noiseClampMax) * 1.415f);
 
             if (_noiseWarp > 0.0f)
                 m.EnableKeyword("ENABLE_WARP");
