@@ -98,35 +98,11 @@ namespace Kvant
         #region Render Settings
 
         [SerializeField]
-        Color _surfaceColor = Color.white;
+        Material _material;
 
-        public Color surfaceColor {
-            get { return _surfaceColor; }
-            set { _surfaceColor = value; }
-        }
-
-        [SerializeField, ColorUsage(true, true, 0, 8, 0.125f, 3)]
-        Color _lineColor = new Color(0, 0, 0, 0.4f);
-
-        public Color lineColor {
-            get { return _lineColor; }
-            set { _lineColor = value; }
-        }
-
-        [SerializeField, Range(0, 1)]
-        float _metallic = 0.5f;
-
-        public float metallic {
-            get { return _metallic; }
-            set { _metallic = value; }
-        }
-
-        [SerializeField, Range(0, 1)]
-        float _smoothness = 0.5f;
-
-        public float smoothness {
-            get { return _smoothness; }
-            set { _smoothness = value; }
+        public Material sharedMaterial {
+            get { return _material; }
+            set { _material = value; }
         }
 
         [SerializeField]
@@ -145,39 +121,12 @@ namespace Kvant
             set { _receiveShadows = value; }
         }
 
-        [SerializeField]
-        Texture2D _albedoMap;
+        [SerializeField, ColorUsage(true, true, 0, 8, 0.125f, 3)]
+        Color _lineColor = new Color(0, 0, 0, 0.4f);
 
-        public Texture2D albedoMap {
-            get { return _albedoMap; }
-            set { _albedoMap = value; }
-        }
-
-        [SerializeField]
-        Texture2D _normalMap;
-
-        public Texture2D normalMap {
-            get { return _normalMap; }
-            set { _normalMap = value; }
-        }
-
-        [SerializeField]
-        Texture2D _occlusionMap;
-
-        public Texture2D occlusionMap {
-            get { return _occlusionMap; }
-            set { _occlusionMap = value; }
-        }
-
-        [SerializeField, Range(0, 1)]
-        float _occlusionStrength;
-
-        [SerializeField]
-        float _mapScale = 1.0f;
-
-        public float mapScale {
-            get { return _mapScale; }
-            set { _mapScale = value; }
+        public Color lineColor {
+            get { return _lineColor; }
+            set { _lineColor = value; }
         }
 
         #endregion
@@ -189,22 +138,16 @@ namespace Kvant
 
         #endregion
 
-        #region Shaders And Materials
+        #region Built-in Resources
 
+        [SerializeField] Material _defaultMaterial;
         [SerializeField] Shader _kernelShader;
-        [SerializeField] Shader _surfaceShader;
         [SerializeField] Shader _lineShader;
         [SerializeField] Shader _debugShader;
 
-        Material _kernelMaterial;
-        Material _surfaceMaterial1;
-        Material _surfaceMaterial2;
-        Material _lineMaterial;
-        Material _debugMaterial;
-
         #endregion
 
-        #region Private Variables And Objects
+        #region Private Variables And Properties
 
         int _rowsPerSegment;
         int _totalRows;
@@ -214,11 +157,12 @@ namespace Kvant
         RenderTexture _normalBuffer2;
 
         BulkMesh _bulkMesh;
+
+        Material _kernelMaterial;
+        Material _lineMaterial;
+        Material _debugMaterial;
+
         bool _needsReset = true;
-
-        #endregion
-
-        #region Private Properties
 
         void UpdateColumnAndRowCounts()
         {
@@ -284,50 +228,15 @@ namespace Kvant
             }
         }
 
-        void UpdateSurfaceMaterial(Material m)
-        {
-            m.SetColor("_Color", _surfaceColor);
-            m.SetFloat("_Metallic", _metallic);
-            m.SetFloat("_Smoothness", _smoothness);
-
-            if (_albedoMap) {
-                m.SetTexture("_MainTex", _albedoMap);
-                m.EnableKeyword("_ALBEDOMAP");
-            } else {
-                m.DisableKeyword("_ALBEDOMAP");
-            }
-
-            if (_normalMap) {
-                m.SetTexture("_NormalMap", _normalMap);
-                m.EnableKeyword("_NORMALMAP");
-            } else {
-                m.DisableKeyword("_NORMALMAP");
-            }
-
-            if (_occlusionMap) {
-                m.SetTexture("_OcclusionMap", _occlusionMap);
-                m.SetFloat("_OcclusionStr", _occlusionStrength);
-                m.EnableKeyword("_OCCLUSIONMAP");
-            }
-            else {
-                m.DisableKeyword("_OCCLUSIONMAP");
-            }
-
-            m.SetFloat("_MapScale", _mapScale);
-            m.SetVector("_MapOffset", new Vector3(_noiseOffset.x, 0, _noiseOffset.y));
-        }
-
         void ResetResources()
         {
             UpdateColumnAndRowCounts();
 
-            // Mesh object.
             if (_bulkMesh == null)
                 _bulkMesh = new BulkMesh(_columns, _rowsPerSegment, _totalRows);
             else
                 _bulkMesh.Rebuild(_columns, _rowsPerSegment, _totalRows);
 
-            // Displacement buffers.
             if (_positionBuffer) DestroyImmediate(_positionBuffer);
             if (_normalBuffer1)  DestroyImmediate(_normalBuffer1);
             if (_normalBuffer2)  DestroyImmediate(_normalBuffer2);
@@ -336,19 +245,11 @@ namespace Kvant
             _normalBuffer1  = CreateBuffer();
             _normalBuffer2  = CreateBuffer();
 
-            // Shader materials.
-            if (!_kernelMaterial)   _kernelMaterial   = CreateMaterial(_kernelShader);
-            if (!_surfaceMaterial1) _surfaceMaterial1 = CreateMaterial(_surfaceShader);
-            if (!_surfaceMaterial2) _surfaceMaterial2 = CreateMaterial(_surfaceShader);
-            if (!_lineMaterial)     _lineMaterial     = CreateMaterial(_lineShader);
-            if (!_debugMaterial)    _debugMaterial    = CreateMaterial(_debugShader);
+            if (!_kernelMaterial) _kernelMaterial = CreateMaterial(_kernelShader);
+            if (!_lineMaterial)   _lineMaterial   = CreateMaterial(_lineShader);
+            if (!_debugMaterial)  _debugMaterial  = CreateMaterial(_debugShader);
 
-            // Set buffer references.
-            _surfaceMaterial1.SetTexture("_PositionTex", _positionBuffer);
-            _surfaceMaterial2.SetTexture("_PositionTex", _positionBuffer);
-            _lineMaterial    .SetTexture("_PositionTex", _positionBuffer);
-            _surfaceMaterial1.SetTexture("_NormalTex",   _normalBuffer1);
-            _surfaceMaterial2.SetTexture("_NormalTex",   _normalBuffer2);
+            _lineMaterial.SetTexture("_PositionTex", _positionBuffer);
 
             _needsReset = false;
         }
@@ -365,62 +266,89 @@ namespace Kvant
         void OnDestroy()
         {
             if (_bulkMesh != null) _bulkMesh.Release();
-            if (_positionBuffer)   DestroyImmediate(_positionBuffer);
-            if (_normalBuffer1)    DestroyImmediate(_normalBuffer1);
-            if (_normalBuffer2)    DestroyImmediate(_normalBuffer2);
-            if (_kernelMaterial)   DestroyImmediate(_kernelMaterial);
-            if (_surfaceMaterial1) DestroyImmediate(_surfaceMaterial1);
-            if (_surfaceMaterial2) DestroyImmediate(_surfaceMaterial2);
-            if (_lineMaterial)     DestroyImmediate(_lineMaterial);
-            if (_debugMaterial)    DestroyImmediate(_debugMaterial);
+            if (_positionBuffer) DestroyImmediate(_positionBuffer);
+            if (_normalBuffer1)  DestroyImmediate(_normalBuffer1);
+            if (_normalBuffer2)  DestroyImmediate(_normalBuffer2);
+            if (_kernelMaterial) DestroyImmediate(_kernelMaterial);
+            if (_lineMaterial)   DestroyImmediate(_lineMaterial);
+            if (_debugMaterial)  DestroyImmediate(_debugMaterial);
         }
 
         void LateUpdate()
         {
             if (_needsReset) ResetResources();
 
-            // Execute the kernel shaders.
+            // Call the kernels.
             UpdateKernelShader();
             Graphics.Blit(null, _positionBuffer, _kernelMaterial, 0);
             Graphics.Blit(_positionBuffer, _normalBuffer1, _kernelMaterial, 1);
             Graphics.Blit(_positionBuffer, _normalBuffer2, _kernelMaterial, 2);
 
-            // Update the display materials.
-            UpdateSurfaceMaterial(_surfaceMaterial1);
-            UpdateSurfaceMaterial(_surfaceMaterial2);
+            // Update the line material.
             _lineMaterial.SetColor("_Color", _lineColor);
 
-            // Fill segments with the bulk mesh.
-            var mesh = _bulkMesh.mesh;
-            var uv = new Vector2(0.5f / _positionBuffer.width, 0);
-            var offs = new MaterialPropertyBlock();
-            var p = transform.position;
-            var r = transform.rotation;
+            // Make a material property block for the following drawcalls.
+            var props1 = new MaterialPropertyBlock();
+            var props2 = new MaterialPropertyBlock();
 
+            props1.SetTexture("_PositionTex", _positionBuffer);
+            props2.SetTexture("_PositionTex", _positionBuffer);
+
+            props1.SetTexture("_NormalTex", _normalBuffer1);
+            props2.SetTexture("_NormalTex", _normalBuffer2);
+
+            var mapOffs = new Vector3(_noiseOffset.x, 0, _noiseOffset.y);
+            props1.SetVector("_MapOffset", mapOffs);
+            props2.SetVector("_MapOffset", mapOffs);
+
+            // Temporary variables.
+            var mesh = _bulkMesh.mesh;
+            var position = transform.position;
+            var rotation = transform.rotation;
+            var material = _material ? _material : _defaultMaterial;
+            var uv = new Vector2(0.5f / _positionBuffer.width, 0);
+
+            // Draw mesh segments.
             for (var i = 0; i < _totalRows; i += _rowsPerSegment)
             {
                 uv.y = (0.5f + i) / _positionBuffer.height;
-                offs.AddVector("_BufferOffset", uv);
 
-                Graphics.DrawMesh(mesh, p, r, _surfaceMaterial1, 0, null, 0, offs, _castShadows, _receiveShadows);
-                Graphics.DrawMesh(mesh, p, r, _surfaceMaterial2, 0, null, 1, offs, _castShadows, _receiveShadows);
+                props1.AddVector("_BufferOffset", uv);
+                props2.AddVector("_BufferOffset", uv);
+
+                Graphics.DrawMesh(
+                    mesh, position, rotation,
+                    material, 0, null, 0, props1,
+                    _castShadows, _receiveShadows);
+
+                Graphics.DrawMesh(
+                    mesh, position, rotation,
+                    material, 0, null, 1, props2,
+                    _castShadows, _receiveShadows);
 
                 if (_lineColor.a > 0.0f)
-                    Graphics.DrawMesh(mesh, p, r, _lineMaterial, 0, null, 2, offs, false, false);
+                    Graphics.DrawMesh(
+                        mesh, position, rotation,
+                        _lineMaterial, 0, null, 2,
+                        props1, false, false);
             }
         }
 
         void OnGUI()
         {
-            if (_debug && Event.current.type.Equals(EventType.Repaint) && _debugMaterial)
+            if (_debug && Event.current.type.Equals(EventType.Repaint))
             {
-                var w = 64;
-                var r1 = new Rect(0 * w, 0, w, w);
-                var r2 = new Rect(1 * w, 0, w, w);
-                var r3 = new Rect(2 * w, 0, w, w);
-                if (_positionBuffer) Graphics.DrawTexture(r1, _positionBuffer, _debugMaterial);
-                if (_normalBuffer1)  Graphics.DrawTexture(r2, _normalBuffer1,  _debugMaterial);
-                if (_normalBuffer2)  Graphics.DrawTexture(r3, _normalBuffer2,  _debugMaterial);
+                if (_debugMaterial && _positionBuffer && _normalBuffer1 && _normalBuffer2)
+                {
+                    var rect = new Rect(0, 0, (_columns + 1) * 2, _totalRows + 1);
+                    Graphics.DrawTexture(rect, _positionBuffer, _debugMaterial);
+
+                    rect.y += rect.height;
+                    Graphics.DrawTexture(rect, _normalBuffer1, _debugMaterial);
+
+                    rect.y += rect.height;
+                    Graphics.DrawTexture(rect, _normalBuffer2, _debugMaterial);
+                }
             }
         }
 

@@ -21,18 +21,10 @@ namespace Kvant
         SerializedProperty _noiseElevation;
         SerializedProperty _noiseWarp;
 
-        SerializedProperty _surfaceColor;
-        SerializedProperty _lineColor;
-        SerializedProperty _metallic;
-        SerializedProperty _smoothness;
+        SerializedProperty _material;
         SerializedProperty _castShadows;
         SerializedProperty _receiveShadows;
-
-        SerializedProperty _albedoMap;
-        SerializedProperty _normalMap;
-        SerializedProperty _occlusionMap;
-        SerializedProperty _occlusionStrength;
-        SerializedProperty _mapScale;
+        SerializedProperty _lineColor;
 
         SerializedProperty _debug;
 
@@ -42,11 +34,6 @@ namespace Kvant
         static GUIContent _textClamp     = new GUIContent("Clamp");
         static GUIContent _textElevation = new GUIContent("Elevation");
         static GUIContent _textWarp      = new GUIContent("Warp");
-        static GUIContent _textAlbedo    = new GUIContent("Albedo");
-        static GUIContent _textNormal    = new GUIContent("Normal");
-        static GUIContent _textOcclusion = new GUIContent("Occlusion");
-        static GUIContent _textScale     = new GUIContent("Scale");
-        static GUIContent _textEmpty     = new GUIContent(" ");
 
         void OnEnable()
         {
@@ -62,18 +49,10 @@ namespace Kvant
             _noiseElevation = serializedObject.FindProperty("_noiseElevation");
             _noiseWarp      = serializedObject.FindProperty("_noiseWarp");
 
-            _surfaceColor   = serializedObject.FindProperty("_surfaceColor");
-            _lineColor      = serializedObject.FindProperty("_lineColor");
-            _metallic       = serializedObject.FindProperty("_metallic");
-            _smoothness     = serializedObject.FindProperty("_smoothness");
+            _material       = serializedObject.FindProperty("_material");
             _castShadows    = serializedObject.FindProperty("_castShadows");
             _receiveShadows = serializedObject.FindProperty("_receiveShadows");
-
-            _albedoMap         = serializedObject.FindProperty("_albedoMap");
-            _normalMap         = serializedObject.FindProperty("_normalMap");
-            _occlusionMap      = serializedObject.FindProperty("_occlusionMap");
-            _occlusionStrength = serializedObject.FindProperty("_occlusionStrength");
-            _mapScale          = serializedObject.FindProperty("_mapScale");
+            _lineColor      = serializedObject.FindProperty("_lineColor");
 
             _debug = serializedObject.FindProperty("_debug");
         }
@@ -100,38 +79,19 @@ namespace Kvant
             EditorGUILayout.Space();
 
             EditorGUILayout.LabelField("Fractal Noise", EditorStyles.boldLabel);
-            EditorGUI.indentLevel++;
             EditorGUILayout.PropertyField(_noiseOffset, _textOffset);
             EditorGUILayout.PropertyField(_noiseFrequency, _textFrequency);
             EditorGUILayout.PropertyField(_noiseDepth, _textDepth);
             MinMaxSlider(_textClamp, _noiseClampMin, _noiseClampMax, -1.5f, 1.5f);
             EditorGUILayout.PropertyField(_noiseElevation, _textElevation);
             EditorGUILayout.PropertyField(_noiseWarp, _textWarp);
-            EditorGUI.indentLevel--;
 
             EditorGUILayout.Space();
 
-            EditorGUILayout.LabelField("Rendering", EditorStyles.boldLabel);
-            EditorGUI.indentLevel++;
-            EditorGUILayout.PropertyField(_surfaceColor);
-            EditorGUILayout.PropertyField(_lineColor);
-            EditorGUILayout.PropertyField(_metallic);
-            EditorGUILayout.PropertyField(_smoothness);
+            EditorGUILayout.PropertyField(_material);
             EditorGUILayout.PropertyField(_castShadows);
             EditorGUILayout.PropertyField(_receiveShadows);
-            EditorGUI.indentLevel--;
-
-            EditorGUILayout.Space();
-
-            EditorGUILayout.LabelField("Triplanar Mapping", EditorStyles.boldLabel);
-            EditorGUI.indentLevel++;
-            EditorGUILayout.PropertyField(_albedoMap, _textAlbedo);
-            EditorGUILayout.PropertyField(_normalMap, _textNormal);
-            EditorGUILayout.PropertyField(_occlusionMap, _textOcclusion);
-            if (_occlusionMap.hasMultipleDifferentValues || _occlusionMap.objectReferenceValue)
-                EditorGUILayout.PropertyField(_occlusionStrength, _textEmpty);
-            EditorGUILayout.PropertyField(_mapScale, _textScale);
-            EditorGUI.indentLevel--;
+            EditorGUILayout.PropertyField(_lineColor);
 
             EditorGUILayout.Space();
 
