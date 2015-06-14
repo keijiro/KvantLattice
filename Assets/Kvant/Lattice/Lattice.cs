@@ -266,7 +266,7 @@ namespace Kvant
             if (!_lineMaterial)   _lineMaterial   = CreateMaterial(_lineShader);
             if (!_debugMaterial)  _debugMaterial  = CreateMaterial(_debugShader);
 
-            _lineMaterial.SetTexture("_PositionTex", _positionBuffer);
+            _lineMaterial.SetTexture("_PositionBuffer", _positionBuffer);
 
             _needsReset = false;
         }
@@ -308,15 +308,18 @@ namespace Kvant
             var props1 = new MaterialPropertyBlock();
             var props2 = new MaterialPropertyBlock();
 
-            props1.SetTexture("_PositionTex", _positionBuffer);
-            props2.SetTexture("_PositionTex", _positionBuffer);
+            props1.SetTexture("_PositionBuffer", _positionBuffer);
+            props2.SetTexture("_PositionBuffer", _positionBuffer);
 
-            props1.SetTexture("_NormalTex", _normalBuffer1);
-            props2.SetTexture("_NormalTex", _normalBuffer2);
+            props1.SetTexture("_NormalBuffer", _normalBuffer1);
+            props2.SetTexture("_NormalBuffer", _normalBuffer2);
 
             var mapOffs = new Vector3(UOffset, 0, VOffset);
             props1.SetVector("_MapOffset", mapOffs);
             props2.SetVector("_MapOffset", mapOffs);
+
+            props1.SetFloat("_UseBuffer", 1);
+            props2.SetFloat("_UseBuffer", 1);
 
             // Temporary variables.
             var mesh = _bulkMesh.mesh;

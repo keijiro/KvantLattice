@@ -86,7 +86,7 @@ Shader "Hidden/Kvant/Lattice/Kernels"
 
         op += clamp(d, _ClampRange.x, _ClampRange.y) * _Amplitude;
 
-        return float4(op, 0);
+        return float4(op, 1);
     }
 
     // Pass 1: Calculates normal vectors for the 1st submesh

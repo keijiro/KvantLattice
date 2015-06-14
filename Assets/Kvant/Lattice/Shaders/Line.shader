@@ -10,8 +10,8 @@ Shader "Hidden/Kvant/Lattice/Line"
 {
     Properties
     {
-        _PositionTex ("-", 2D) = "black"{}
-        [HDR] _Color ("-", Color) = (1, 1, 1, 0.5)
+        _PositionBuffer ("-", 2D) = "black"{}
+        [HDR] _Color    ("-", Color) = (1, 1, 1, 0.5)
     }
 
     CGINCLUDE
@@ -26,22 +26,18 @@ Shader "Hidden/Kvant/Lattice/Line"
         UNITY_FOG_COORDS(0)
     };
 
-    sampler2D _PositionTex;
+    sampler2D _PositionBuffer;
     half4 _Color;
     float2 _BufferOffset;
 
     v2f vert(appdata_base v)
     {
         float4 uv = float4(v.texcoord + _BufferOffset, 0, 0);
-
-        float4 pos = v.vertex;
-        pos.xyz += tex2Dlod(_PositionTex, uv).xyz;
+        v.vertex.xyz = tex2Dlod(_PositionBuffer, uv).xyz;
 
         v2f o;
-        o.position = mul(UNITY_MATRIX_MVP, pos);
-
+        o.position = mul(UNITY_MATRIX_MVP, v.vertex);
         UNITY_TRANSFER_FOG(o, o.position);
-
         return o;
     }
 
@@ -56,7 +52,7 @@ Shader "Hidden/Kvant/Lattice/Line"
 
     SubShader
     {
-        Tags { "RenderType"="Transparent" "Queue" = "Transparent" }
+        Tags { "Queue" = "Geometry+1" }
         Pass
         {
             Blend SrcAlpha OneMinusSrcAlpha

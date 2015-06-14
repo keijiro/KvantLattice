@@ -10,19 +10,19 @@ Shader "Kvant/Lattice/Surface"
 {
     Properties
     {
-        _PositionTex  ("-", 2D) = "black"{}
-        _NormalTex    ("-", 2D) = "black"{}
+        _PositionBuffer ("-", 2D) = "black"{}
+        _NormalBuffer   ("-", 2D) = "black"{}
 
-        _Color        ("-", Color) = (1, 1, 1, 1)
-        _Metallic     ("-", Range(0,1)) = 0.5
-        _Smoothness   ("-", Range(0,1)) = 0.5
+        _Color          ("-", Color) = (1, 1, 1, 1)
+        _Metallic       ("-", Range(0,1)) = 0.5
+        _Smoothness     ("-", Range(0,1)) = 0.5
 
-        _MainTex      ("-", 2D) = "white"{}
-        _NormalMap    ("-", 2D) = "bump"{}
-        _NormalScale  ("-", Range(0,2)) = 1
-        _OcclusionMap ("-", 2D) = "white"{}
-        _OcclusionStr ("-", Float) = 1.0
-        _MapScale     ("-", Float) = 1.0
+        _MainTex        ("-", 2D) = "white"{}
+        _NormalMap      ("-", 2D) = "bump"{}
+        _NormalScale    ("-", Range(0,2)) = 1
+        _OcclusionMap   ("-", 2D) = "white"{}
+        _OcclusionStr   ("-", Float) = 1.0
+        _MapScale       ("-", Float) = 1.0
     }
     SubShader
     {
@@ -38,8 +38,8 @@ Shader "Kvant/Lattice/Surface"
         #pragma shader_feature _OCCLUSIONMAP
         #pragma target 3.0
 
-        sampler2D _PositionTex;
-        sampler2D _NormalTex;
+        sampler2D _PositionBuffer;
+        sampler2D _NormalBuffer;
         float2 _BufferOffset; // hidden on inspector
 
         half4 _Color;
@@ -53,6 +53,7 @@ Shader "Kvant/Lattice/Surface"
         half _OcclusionStr;
         half _MapScale;
         float3 _MapOffset; // hidden on inspector
+        half _UseBuffer;   // hidden on inspector
 
         struct Input
         {
@@ -71,8 +72,11 @@ Shader "Kvant/Lattice/Surface"
             float4 uv1 = float4(v.texcoord  + _BufferOffset, 0, 0);
             float4 uv2 = float4(v.texcoord1 + _BufferOffset, 0, 0);
 
-            v.vertex.xyz += tex2Dlod(_PositionTex, uv1).xyz;
-            v.normal = tex2Dlod(_NormalTex, uv2).xyz;
+            float4 p = tex2Dlod(_PositionBuffer, uv1);
+            float3 n = tex2Dlod(_NormalBuffer, uv2).xyz;
+
+            v.vertex = lerp(v.vertex, p, _UseBuffer);
+            v.normal = lerp(v.normal, n, _UseBuffer);
 
         #if _NORMALMAP
             v.tangent = float4(normalize(cross(float3(1, 0, 0), v.normal)), 1);
@@ -115,7 +119,7 @@ Shader "Kvant/Lattice/Surface"
             half4 nx = tex2D(_NormalMap, pmx) * blend.x;
             half4 ny = tex2D(_NormalMap, pmy) * blend.y;
             half4 nz = tex2D(_NormalMap, pmz) * blend.z;
-            o.Normal = UnpackNormal(nx + ny + nz);
+            o.Normal = UnpackScaleNormal(nx + ny + nz, _NormalScale);
         #endif
 
         #if _OCCLUSIONMAP
