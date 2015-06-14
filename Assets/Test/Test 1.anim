@@ -24,12 +24,17 @@ AnimationClip:
         outSlope: 0
         tangentMode: 0
       - time: 2
-        value: 7.5
+        value: 5
         inSlope: 0
         outSlope: 0
         tangentMode: 0
       - time: 3.5
-        value: 7.5
+        value: 5
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+      - time: 5.5
+        value: 0
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -54,6 +59,11 @@ AnimationClip:
         tangentMode: 0
       - time: 3.5
         value: -1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+      - time: 5.5
+        value: 0
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -87,7 +97,7 @@ AnimationClip:
   m_AnimationClipSettings:
     serializedVersion: 2
     m_StartTime: 0
-    m_StopTime: 3.5
+    m_StopTime: 5.5
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0
@@ -111,12 +121,17 @@ AnimationClip:
         outSlope: 0
         tangentMode: 0
       - time: 2
-        value: 7.5
+        value: 5
         inSlope: 0
         outSlope: 0
         tangentMode: 0
       - time: 3.5
-        value: 7.5
+        value: 5
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+      - time: 5.5
+        value: 0
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -141,6 +156,11 @@ AnimationClip:
         tangentMode: 0
       - time: 3.5
         value: -1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+      - time: 5.5
+        value: 0
         inSlope: 0
         outSlope: 0
         tangentMode: 0
