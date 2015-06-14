@@ -24,7 +24,7 @@ namespace Kvant
 
             _position += speed * Time.deltaTime;
 
-            var lsize = lattice.size;
+            var lsize = lattice.extent;
             var dx = lsize.x / lattice.columns;
             var dy = lsize.y / (lattice.rows / 2);
 

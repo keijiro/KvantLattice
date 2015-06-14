@@ -6,7 +6,7 @@ Shader "Hidden/Kvant/Lattice/Kernels"
     Properties
     {
         _MainTex  ("-", 2D)     = ""{}
-        _Size     ("-", Vector) = (5, 5, 0)
+        _Extent   ("-", Vector) = (5, 5, 0)
         _Noise    ("-", Vector) = (1, 0, 0)       // (freq, offs_x, offs_y)
         _Displace ("-", Vector) = (0.3, -1, 1, 0) // (elevation, min, max, warp)
     }
@@ -21,14 +21,14 @@ Shader "Hidden/Kvant/Lattice/Kernels"
 
     sampler2D _MainTex;
     float2 _MainTex_TexelSize;
-    float2 _Size;
+    float2 _Extent;
     float3 _Noise;
     float4 _Displace;
 
     // Pass 0: Calculates vertex positions
     float4 frag_position(v2f_img i) : SV_Target 
     {
-        float2 vp = (i.uv.xy - (float2)0.5) * _Size;
+        float2 vp = (i.uv.xy - (float2)0.5) * _Extent;
 
         float2 nc1 = (vp + _Noise.yz) * _Noise.x;
         #if ENABLE_WARP

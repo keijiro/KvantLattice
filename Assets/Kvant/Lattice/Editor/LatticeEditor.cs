@@ -11,7 +11,7 @@ namespace Kvant
     {
         SerializedProperty _columns;
         SerializedProperty _rows;
-        SerializedProperty _size;
+        SerializedProperty _extent;
 
         SerializedProperty _noiseOffset;
         SerializedProperty _noiseFrequency;
@@ -52,7 +52,7 @@ namespace Kvant
         {
             _columns = serializedObject.FindProperty("_columns");
             _rows    = serializedObject.FindProperty("_rows");
-            _size    = serializedObject.FindProperty("_size");
+            _extent  = serializedObject.FindProperty("_extent");
 
             _noiseOffset    = serializedObject.FindProperty("_noiseOffset");
             _noiseFrequency = serializedObject.FindProperty("_noiseFrequency");
@@ -95,7 +95,7 @@ namespace Kvant
             if (EditorGUI.EndChangeCheck())
                 targetLattice.NotifyConfigChange();
 
-            EditorGUILayout.PropertyField(_size);
+            EditorGUILayout.PropertyField(_extent);
 
             EditorGUILayout.Space();
 

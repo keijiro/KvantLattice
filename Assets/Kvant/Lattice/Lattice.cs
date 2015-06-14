@@ -9,64 +9,165 @@ namespace Kvant
     [ExecuteInEditMode, AddComponentMenu("Kvant/Lattice")]
     public partial class Lattice : MonoBehaviour
     {
-        #region Parameters Exposed To Editor
+        #region Basic Properties
 
         [SerializeField]
         int _columns = 100;
 
+        public int columns {
+            get { return _columns; }
+        }
+
         [SerializeField]
         int _rows = 100;
 
+        public int rows {
+            get { return _totalRows; }
+        }
+
         [SerializeField]
-        Vector2 _size = Vector2.one * 10;
+        Vector2 _extent = Vector2.one * 10;
+
+        public Vector2 extent {
+            get { return _extent; }
+            set { _extent = value; }
+        }
+
+        #endregion
+
+        #region Noise Parameters
 
         [SerializeField]
         Vector2 _noiseOffset = Vector2.zero;
 
+        public Vector2 noiseOffset {
+            get { return _noiseOffset; }
+            set { _noiseOffset = value; }
+        }
+
         [SerializeField, Range(0, 1)]
         float _noiseFrequency = 2.0f;
+
+        public float noiseFrequency {
+            get { return _noiseFrequency; }
+            set { _noiseFrequency = value; }
+        }
 
         [SerializeField, Range(1, 5)]
         int _noiseDepth = 4;
 
+        public int noiseDepth {
+            get { return _noiseDepth; }
+            set { _noiseDepth = value; }
+        }
+
         [SerializeField]
         float _noiseClampMin = -1.5f;
+
+        public float noiseClampMin {
+            get { return _noiseClampMin; }
+            set { _noiseClampMin = value; }
+        }
 
         [SerializeField]
         float _noiseClampMax = 1.5f;
 
+        public float noiseClampMax {
+            get { return _noiseClampMax; }
+            set { _noiseClampMax = value; }
+        }
+
         [SerializeField]
         float _noiseElevation = 0.5f;
+
+        public float noiseElevation {
+            get { return _noiseElevation; }
+            set { _noiseElevation = value; }
+        }
 
         [SerializeField, Range(0, 1)]
         float _noiseWarp = 0.1f;
 
+        public float noiseWarp {
+            get { return _noiseWarp; }
+            set { _noiseWarp = value; }
+        }
+
+        #endregion
+
+        #region Render Settings
+
         [SerializeField]
         Color _surfaceColor = Color.white;
+
+        public Color surfaceColor {
+            get { return _surfaceColor; }
+            set { _surfaceColor = value; }
+        }
 
         [SerializeField, ColorUsage(true, true, 0, 8, 0.125f, 3)]
         Color _lineColor = new Color(0, 0, 0, 0.4f);
 
+        public Color lineColor {
+            get { return _lineColor; }
+            set { _lineColor = value; }
+        }
+
         [SerializeField, Range(0, 1)]
         float _metallic = 0.5f;
+
+        public float metallic {
+            get { return _metallic; }
+            set { _metallic = value; }
+        }
 
         [SerializeField, Range(0, 1)]
         float _smoothness = 0.5f;
 
+        public float smoothness {
+            get { return _smoothness; }
+            set { _smoothness = value; }
+        }
+
         [SerializeField]
         ShadowCastingMode _castShadows;
+
+        public ShadowCastingMode shadowCastingMode {
+            get { return _castShadows; }
+            set { _castShadows = value; }
+        }
 
         [SerializeField]
         bool _receiveShadows = false;
 
+        public bool receiveShadows {
+            get { return _receiveShadows; }
+            set { _receiveShadows = value; }
+        }
+
         [SerializeField]
         Texture2D _albedoMap;
+
+        public Texture2D albedoMap {
+            get { return _albedoMap; }
+            set { _albedoMap = value; }
+        }
 
         [SerializeField]
         Texture2D _normalMap;
 
+        public Texture2D normalMap {
+            get { return _normalMap; }
+            set { _normalMap = value; }
+        }
+
         [SerializeField]
         Texture2D _occlusionMap;
+
+        public Texture2D occlusionMap {
+            get { return _occlusionMap; }
+            set { _occlusionMap = value; }
+        }
 
         [SerializeField, Range(0, 1)]
         float _occlusionStrength;
@@ -74,110 +175,17 @@ namespace Kvant
         [SerializeField]
         float _mapScale = 1.0f;
 
-        [SerializeField]
-        bool _debug;
-
-        #endregion
-
-        #region Public Properties
-
-        public int columns {
-            get { return _columns; }
-        }
-
-        public int rows {
-            get { return _totalRows; }
-        }
-
-        public Vector2 size {
-            get { return _size; }
-            set { _size = value; }
-        }
-
-        public Vector2 noiseOffset {
-            get { return _noiseOffset; }
-            set { _noiseOffset = value; }
-        }
-
-        public float noiseFrequency {
-            get { return _noiseFrequency; }
-            set { _noiseFrequency = value; }
-        }
-
-        public int noiseDepth {
-            get { return _noiseDepth; }
-            set { _noiseDepth = value; }
-        }
-
-        public float noiseClampMin {
-            get { return _noiseClampMin; }
-            set { _noiseClampMin = value; }
-        }
-
-        public float noiseClampMax {
-            get { return _noiseClampMax; }
-            set { _noiseClampMax = value; }
-        }
-
-        public float noiseElevation {
-            get { return _noiseElevation; }
-            set { _noiseElevation = value; }
-        }
-
-        public float noiseWarp {
-            get { return _noiseWarp; }
-            set { _noiseWarp = value; }
-        }
-
-        public Color surfaceColor {
-            get { return _surfaceColor; }
-            set { _surfaceColor = value; }
-        }
-
-        public Color lineColor {
-            get { return _lineColor; }
-            set { _lineColor = value; }
-        }
-
-        public float metallic {
-            get { return _metallic; }
-            set { _metallic = value; }
-        }
-
-        public float smoothness {
-            get { return _smoothness; }
-            set { _smoothness = value; }
-        }
-
-        public ShadowCastingMode shadowCastingMode {
-            get { return _castShadows; }
-            set { _castShadows = value; }
-        }
-
-        public bool receiveShadows {
-            get { return _receiveShadows; }
-            set { _receiveShadows = value; }
-        }
-
-        public Texture2D albedoMap {
-            get { return _albedoMap; }
-            set { _albedoMap = value; }
-        }
-
-        public Texture2D normalMap {
-            get { return _normalMap; }
-            set { _normalMap = value; }
-        }
-
-        public Texture2D occlusionMap {
-            get { return _occlusionMap; }
-            set { _occlusionMap = value; }
-        }
-
         public float mapScale {
             get { return _mapScale; }
             set { _mapScale = value; }
         }
+
+        #endregion
+
+        #region Editor Properties
+
+        [SerializeField]
+        bool _debug;
 
         #endregion
 
@@ -259,7 +267,7 @@ namespace Kvant
         {
             var m = _kernelMaterial;
 
-            m.SetVector("_Size", _size);
+            m.SetVector("_Extent", _extent);
             m.SetVector("_Noise", new Vector4(_noiseFrequency, _noiseOffset.x, _noiseOffset.y));
             m.SetVector("_Displace", new Vector4(_noiseElevation, _noiseClampMin, _noiseClampMax, _noiseElevation * _noiseWarp));
 

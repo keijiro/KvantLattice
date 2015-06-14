@@ -178,7 +178,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _columns: 700
   _rows: 700
-  _size: {x: 200, y: 200}
+  _extent: {x: 200, y: 200}
   _noiseOffset: {x: 8.80000019, y: 9.93999958}
   _noiseFrequency: .0820000023
   _noiseDepth: 5
