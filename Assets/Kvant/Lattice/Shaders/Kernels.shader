@@ -31,58 +31,58 @@ Shader "Hidden/Kvant/Lattice/Kernels"
         float2 vp = (i.uv.xy - (float2)0.5) * _Extent;
 
         float2 nc1 = (vp + _Offset) * _Frequency;
-        #if ENABLE_WARP
+    #if ENABLE_WARP
         float2 nc2 = nc1 + float2(124.343, 311.591);
         float2 nc3 = nc1 + float2(273.534, 178.392);
-        #endif
+    #endif
 
         float2 np = float2(100000, 100000);
 
         float n1 = pnoise(nc1, np);
-        #if ENABLE_WARP
+    #if ENABLE_WARP
         float n2 = pnoise(nc2, np);
         float n3 = pnoise(nc3, np);
-        #endif
+    #endif
 
-        #if DEPTH2 || DEPTH3 || DEPTH4 || DEPTH5
+    #if DEPTH2 || DEPTH3 || DEPTH4 || DEPTH5
         n1 += pnoise(nc1 * 2, np * 2) * 0.5;
-        #if ENABLE_WARP
+    #if ENABLE_WARP
         n2 += pnoise(nc2 * 2, np * 2) * 0.5;
         n3 += pnoise(nc3 * 2, np * 2) * 0.5;
-        #endif
-        #endif
+    #endif
+    #endif
 
-        #if DEPTH3 || DEPTH4 || DEPTH5
+    #if DEPTH3 || DEPTH4 || DEPTH5
         n1 += pnoise(nc1 * 4, np * 4) * 0.25;
-        #if ENABLE_WARP
+    #if ENABLE_WARP
         n2 += pnoise(nc2 * 4, np * 4) * 0.25;
         n3 += pnoise(nc3 * 4, np * 4) * 0.25;
-        #endif
-        #endif
+    #endif
+    #endif
 
-        #if DEPTH4 || DEPTH5
+    #if DEPTH4 || DEPTH5
         n1 += pnoise(nc1 * 8, np * 8) * 0.125;
-        #if ENABLE_WARP
+    #if ENABLE_WARP
         n2 += pnoise(nc1 * 8, np * 8) * 0.125;
         n3 += pnoise(nc1 * 8, np * 8) * 0.125;
-        #endif
-        #endif
+    #endif
+    #endif
 
-        #if DEPTH5
+    #if DEPTH5
         n1 += pnoise(nc1 * 16, np * 16) * 0.0625;
-        #if ENABLE_WARP
+    #if ENABLE_WARP
         n2 += pnoise(nc1 * 16, np * 16) * 0.0625;
         n3 += pnoise(nc1 * 16, np * 16) * 0.0625;
-        #endif
-        #endif
+    #endif
+    #endif
 
         float3 op = float3(vp.x, 0, vp.y);
 
-        #if ENABLE_WARP
+    #if ENABLE_WARP
         float3 d = float3(n2, n1, n3);
-        #else
+    #else
         float3 d = float3(0, n1, 0);
-        #endif
+    #endif
 
         op += clamp(d, _ClampRange.x, _ClampRange.y) * _Amplitude;
 

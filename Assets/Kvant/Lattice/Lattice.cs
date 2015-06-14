@@ -6,7 +6,8 @@ using UnityEngine.Rendering;
 
 namespace Kvant
 {
-    [ExecuteInEditMode, AddComponentMenu("Kvant/Lattice")]
+    [ExecuteInEditMode]
+    [AddComponentMenu("Kvant/Lattice")]
     public partial class Lattice : MonoBehaviour
     {
         #region Basic Properties
@@ -26,7 +27,7 @@ namespace Kvant
         }
 
         [SerializeField]
-        Vector2 _extent = Vector2.one * 10;
+        Vector2 _extent = Vector2.one * 50;
 
         public Vector2 extent {
             get { return _extent; }
@@ -46,7 +47,7 @@ namespace Kvant
         #region Noise Parameters
 
         [SerializeField, Range(0, 1)]
-        float _noiseFrequency = 2.0f;
+        float _noiseFrequency = 0.3f;
 
         public float noiseFrequency {
             get { return _noiseFrequency; }
@@ -54,7 +55,7 @@ namespace Kvant
         }
 
         [SerializeField, Range(1, 5)]
-        int _noiseDepth = 4;
+        int _noiseDepth = 3;
 
         public int noiseDepth {
             get { return _noiseDepth; }
@@ -62,7 +63,7 @@ namespace Kvant
         }
 
         [SerializeField]
-        float _noiseClampMin = -1.5f;
+        float _noiseClampMin = -1.0f;
 
         public float noiseClampMin {
             get { return _noiseClampMin; }
@@ -70,7 +71,7 @@ namespace Kvant
         }
 
         [SerializeField]
-        float _noiseClampMax = 1.5f;
+        float _noiseClampMax = 1.0f;
 
         public float noiseClampMax {
             get { return _noiseClampMax; }
@@ -78,7 +79,7 @@ namespace Kvant
         }
 
         [SerializeField]
-        float _noiseElevation = 0.5f;
+        float _noiseElevation = 1.0f;
 
         public float noiseElevation {
             get { return _noiseElevation; }
@@ -86,7 +87,7 @@ namespace Kvant
         }
 
         [SerializeField, Range(0, 1)]
-        float _noiseWarp = 0.1f;
+        float _noiseWarp = 0.0f;
 
         public float noiseWarp {
             get { return _noiseWarp; }
@@ -140,7 +141,6 @@ namespace Kvant
 
         #region Built-in Resources
 
-        [SerializeField] Material _defaultMaterial;
         [SerializeField] Shader _kernelShader;
         [SerializeField] Shader _lineShader;
         [SerializeField] Shader _debugShader;
@@ -238,12 +238,11 @@ namespace Kvant
             else
                 m.DisableKeyword("ENABLE_WARP");
 
-            for (var i = 1; i <= 5; i++) {
+            for (var i = 1; i <= 5; i++)
                 if (i == _noiseDepth)
                     m.EnableKeyword("DEPTH" + i);
                 else
                     m.DisableKeyword("DEPTH" + i);
-            }
         }
 
         void ResetResources()
@@ -323,7 +322,6 @@ namespace Kvant
             var mesh = _bulkMesh.mesh;
             var position = transform.position;
             var rotation = transform.rotation;
-            var material = _material ? _material : _defaultMaterial;
             var uv = new Vector2(0.5f / _positionBuffer.width, 0);
 
             position += transform.right * XOffset;
@@ -334,19 +332,25 @@ namespace Kvant
             {
                 uv.y = (0.5f + i) / _positionBuffer.height;
 
-                props1.AddVector("_BufferOffset", uv);
-                props2.AddVector("_BufferOffset", uv);
+                props1.SetVector("_BufferOffset", uv);
+                props2.SetVector("_BufferOffset", uv);
 
-                Graphics.DrawMesh(
-                    mesh, position, rotation,
-                    material, 0, null, 0, props1,
-                    _castShadows, _receiveShadows);
+                if (_material)
+                {
+                    // 1st half
+                    Graphics.DrawMesh(
+                        mesh, position, rotation,
+                        _material, 0, null, 0, props1,
+                        _castShadows, _receiveShadows);
 
-                Graphics.DrawMesh(
-                    mesh, position, rotation,
-                    material, 0, null, 1, props2,
-                    _castShadows, _receiveShadows);
+                    // 2nd half
+                    Graphics.DrawMesh(
+                        mesh, position, rotation,
+                        _material, 0, null, 1, props2,
+                        _castShadows, _receiveShadows);
+                }
 
+                // lines
                 if (_lineColor.a > 0.0f)
                     Graphics.DrawMesh(
                         mesh, position, rotation,

@@ -6,7 +6,8 @@ using UnityEditor;
 
 namespace Kvant
 {
-    [CustomEditor(typeof(Lattice)), CanEditMultipleObjects]
+    [CanEditMultipleObjects]
+    [CustomEditor(typeof(Lattice))]
     public class LatticeEditor : Editor
     {
         SerializedProperty _columns;
@@ -67,8 +68,10 @@ namespace Kvant
             EditorGUILayout.PropertyField(_columns);
             EditorGUILayout.PropertyField(_rows);
 
-            if (!_rows.hasMultipleDifferentValues)
-                EditorGUILayout.LabelField(" ", "Allocated: " + targetLattice.rows, EditorStyles.miniLabel);
+            if (!_rows.hasMultipleDifferentValues) {
+                var note = "Allocated: " + targetLattice.rows;
+                EditorGUILayout.LabelField(" ", note, EditorStyles.miniLabel);
+            }
 
             if (EditorGUI.EndChangeCheck())
                 targetLattice.NotifyConfigChange();
@@ -99,7 +102,10 @@ namespace Kvant
             serializedObject.ApplyModifiedProperties();
         }
 
-        void MinMaxSlider(GUIContent label, SerializedProperty propMin, SerializedProperty propMax, float minLimit, float maxLimit)
+        void MinMaxSlider(
+            GUIContent label,
+            SerializedProperty propMin, SerializedProperty propMax,
+            float minLimit, float maxLimit)
         {
             var min = propMin.floatValue;
             var max = propMax.floatValue;
