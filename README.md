@@ -3,7 +3,7 @@ KvantLattice
 
 A GPU accelerated fractal terrain renderer for Unity
 
-![screen](https://38.media.tumblr.com/64b3b234f6251a0256d793ade8c9f48c/tumblr_np9u7jfo0D1qio469o1_400.gif)
+![screen](http://38.media.tumblr.com/763755485216cd9a700858fc51a8b8f7/tumblr_npxrsboXSd1qio469o1_400.gif)
 
 System Requirements
 -------------------
