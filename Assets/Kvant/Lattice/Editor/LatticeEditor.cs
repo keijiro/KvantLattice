@@ -12,8 +12,8 @@ namespace Kvant
         SerializedProperty _columns;
         SerializedProperty _rows;
         SerializedProperty _extent;
+        SerializedProperty _offset;
 
-        SerializedProperty _noiseOffset;
         SerializedProperty _noiseFrequency;
         SerializedProperty _noiseDepth;
         SerializedProperty _noiseClampMin;
@@ -28,7 +28,6 @@ namespace Kvant
 
         SerializedProperty _debug;
 
-        static GUIContent _textOffset    = new GUIContent("Offset");
         static GUIContent _textFrequency = new GUIContent("Frequency");
         static GUIContent _textDepth     = new GUIContent("Depth");
         static GUIContent _textClamp     = new GUIContent("Clamp");
@@ -40,8 +39,8 @@ namespace Kvant
             _columns = serializedObject.FindProperty("_columns");
             _rows    = serializedObject.FindProperty("_rows");
             _extent  = serializedObject.FindProperty("_extent");
+            _offset  = serializedObject.FindProperty("_offset");
 
-            _noiseOffset    = serializedObject.FindProperty("_noiseOffset");
             _noiseFrequency = serializedObject.FindProperty("_noiseFrequency");
             _noiseDepth     = serializedObject.FindProperty("_noiseDepth");
             _noiseClampMin  = serializedObject.FindProperty("_noiseClampMin");
@@ -75,11 +74,11 @@ namespace Kvant
                 targetLattice.NotifyConfigChange();
 
             EditorGUILayout.PropertyField(_extent);
+            EditorGUILayout.PropertyField(_offset);
 
             EditorGUILayout.Space();
 
             EditorGUILayout.LabelField("Fractal Noise", EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(_noiseOffset, _textOffset);
             EditorGUILayout.PropertyField(_noiseFrequency, _textFrequency);
             EditorGUILayout.PropertyField(_noiseDepth, _textDepth);
             MinMaxSlider(_textClamp, _noiseClampMin, _noiseClampMax, -1.5f, 1.5f);

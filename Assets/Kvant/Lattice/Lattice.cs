@@ -33,17 +33,17 @@ namespace Kvant
             set { _extent = value; }
         }
 
+        [SerializeField]
+        Vector2 _offset = Vector2.zero;
+
+        public Vector2 offset {
+            get { return _offset; }
+            set { _offset = value; }
+        }
+
         #endregion
 
         #region Noise Parameters
-
-        [SerializeField]
-        Vector2 _noiseOffset = Vector2.zero;
-
-        public Vector2 noiseOffset {
-            get { return _noiseOffset; }
-            set { _noiseOffset = value; }
-        }
 
         [SerializeField, Range(0, 1)]
         float _noiseFrequency = 2.0f;
@@ -164,6 +164,22 @@ namespace Kvant
 
         bool _needsReset = true;
 
+        float XOffset {
+            get { return Mathf.Repeat(_offset.x, _extent.x / (_columns + 1)); }
+        }
+
+        float YOffset {
+            get { return Mathf.Repeat(_offset.y, _extent.y / (_totalRows + 1) * 2); }
+        }
+
+        float UOffset {
+            get { return XOffset - _offset.x; }
+        }
+
+        float VOffset {
+            get { return YOffset - _offset.y; }
+        }
+
         void UpdateColumnAndRowCounts()
         {
             // Sanitize the numbers.
@@ -212,7 +228,7 @@ namespace Kvant
             var m = _kernelMaterial;
 
             m.SetVector("_Extent", _extent);
-            m.SetVector("_Noise", new Vector4(_noiseFrequency, _noiseOffset.x, _noiseOffset.y));
+            m.SetVector("_Noise", new Vector4(_noiseFrequency, UOffset, VOffset));
             m.SetVector("_Displace", new Vector4(_noiseElevation, _noiseClampMin, _noiseClampMax, _noiseElevation * _noiseWarp));
 
             if (_noiseWarp > 0.0f)
@@ -297,7 +313,7 @@ namespace Kvant
             props1.SetTexture("_NormalTex", _normalBuffer1);
             props2.SetTexture("_NormalTex", _normalBuffer2);
 
-            var mapOffs = new Vector3(_noiseOffset.x, 0, _noiseOffset.y);
+            var mapOffs = new Vector3(UOffset, 0, VOffset);
             props1.SetVector("_MapOffset", mapOffs);
             props2.SetVector("_MapOffset", mapOffs);
 
@@ -307,6 +323,9 @@ namespace Kvant
             var rotation = transform.rotation;
             var material = _material ? _material : _defaultMaterial;
             var uv = new Vector2(0.5f / _positionBuffer.width, 0);
+
+            position += transform.right * XOffset;
+            position += transform.forward * YOffset;
 
             // Draw mesh segments.
             for (var i = 0; i < _totalRows; i += _rowsPerSegment)

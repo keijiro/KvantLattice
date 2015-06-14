@@ -5,34 +5,18 @@ using UnityEngine;
 
 namespace Kvant
 {
-    [RequireComponent(typeof(Lattice)), AddComponentMenu("Kvant/Lattice Scroller")]
+    [RequireComponent(typeof(Lattice))]
+    [AddComponentMenu("Kvant/Lattice Scroller")]
     public class LatticeScroller : MonoBehaviour
     {
-        public Vector2 speed;
-
-        Vector3 _origin;
-        Vector2 _position;
-
-        void Start()
-        {
-            _origin = transform.position;
-        }
+        public float yawAngle;
+        public float speed;
 
         void Update()
         {
-            var lattice = GetComponent<Lattice>();
-
-            _position += speed * Time.deltaTime;
-
-            var lsize = lattice.extent;
-            var dx = lsize.x / lattice.columns;
-            var dy = lsize.y / (lattice.rows / 2);
-
-            var ox = _position.x % dx;
-            var oy = _position.y % dy;
-
-            transform.position = _origin - new Vector3(ox, 0, oy);
-            lattice.noiseOffset = new Vector2(_position.x - ox, _position.y - oy);
+            var r = yawAngle * Mathf.Deg2Rad;
+            var dir = new Vector2(Mathf.Cos(r), Mathf.Sin(r));
+            GetComponent<Lattice>().offset += dir * speed * Time.deltaTime;
         }
     }
 }

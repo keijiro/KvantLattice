@@ -5,10 +5,7 @@ Shader "Hidden/Kvant/Lattice/Kernels"
 {
     Properties
     {
-        _MainTex  ("-", 2D)     = ""{}
-        _Extent   ("-", Vector) = (5, 5, 0)
-        _Noise    ("-", Vector) = (1, 0, 0)       // (freq, offs_x, offs_y)
-        _Displace ("-", Vector) = (0.3, -1, 1, 0) // (elevation, min, max, warp)
+        _MainTex ("-", 2D) = ""{}
     }
 
     CGINCLUDE
@@ -21,9 +18,10 @@ Shader "Hidden/Kvant/Lattice/Kernels"
 
     sampler2D _MainTex;
     float2 _MainTex_TexelSize;
+
     float2 _Extent;
-    float3 _Noise;
-    float4 _Displace;
+    float3 _Noise;    // (freq, offs_x, offs_y)
+    float4 _Displace; // (elevation, min, max, warp)
 
     // Pass 0: Calculates vertex positions
     float4 frag_position(v2f_img i) : SV_Target 
