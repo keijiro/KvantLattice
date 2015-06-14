@@ -279,7 +279,8 @@ namespace Kvant
         void UpdateSurfaceMaterial(Material m)
         {
             m.SetColor("_Color", _surfaceColor);
-            m.SetVector("_PbrParams", new Vector2(_metallic, _smoothness));
+            m.SetFloat("_Metallic", _metallic);
+            m.SetFloat("_Smoothness", _smoothness);
 
             if (_albedoMap) {
                 m.SetTexture("_MainTex", _albedoMap);
@@ -289,7 +290,7 @@ namespace Kvant
             }
 
             if (_normalMap) {
-                m.SetTexture("_BumpMap", _normalMap);
+                m.SetTexture("_NormalMap", _normalMap);
                 m.EnableKeyword("_NORMALMAP");
             } else {
                 m.DisableKeyword("_NORMALMAP");
@@ -297,14 +298,15 @@ namespace Kvant
 
             if (_occlusionMap) {
                 m.SetTexture("_OcclusionMap", _occlusionMap);
-                m.SetFloat("_OcclusionStrength", _occlusionStrength);
+                m.SetFloat("_OcclusionStr", _occlusionStrength);
                 m.EnableKeyword("_OCCLUSIONMAP");
             }
             else {
                 m.DisableKeyword("_OCCLUSIONMAP");
             }
 
-            m.SetVector("_MapParams", new Vector4(_noiseOffset.x, 0, _noiseOffset.y, _mapScale));
+            m.SetFloat("_MapScale", _mapScale);
+            m.SetVector("_MapOffset", new Vector3(_noiseOffset.x, 0, _noiseOffset.y));
         }
 
         void ResetResources()
@@ -390,7 +392,7 @@ namespace Kvant
             for (var i = 0; i < _totalRows; i += _rowsPerSegment)
             {
                 uv.y = (0.5f + i) / _positionBuffer.height;
-                offs.AddVector("_UVOffset", uv);
+                offs.AddVector("_BufferOffset", uv);
 
                 Graphics.DrawMesh(mesh, p, r, _surfaceMaterial1, 0, null, 0, offs, _castShadows, _receiveShadows);
                 Graphics.DrawMesh(mesh, p, r, _surfaceMaterial2, 0, null, 1, offs, _castShadows, _receiveShadows);

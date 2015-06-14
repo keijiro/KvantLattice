@@ -1,55 +1,58 @@
 ﻿//
-// Surface shader for Lattice
+// Opaque surface shader for Lattice
 //
 // Vertex format:
 // position     = not in use
 // texcoord0.xy = uv for position texture
 // texcoord1.xy = uv for normal texture
 //
-Shader "Hidden/Kvant/Lattice/Surface"
+Shader "Kvant/Lattice/Surface"
 {
     Properties
     {
-        _PositionTex       ("-", 2D)     = ""{}
-        _NormalTex         ("-", 2D)     = ""{}
+        _PositionTex  ("-", 2D) = "black"{}
+        _NormalTex    ("-", 2D) = "red"{}
 
-        _Color             ("-", Color)  = (1, 1, 1, 1)
-        _PbrParams         ("-", Vector) = (0.9, 0.9, 0, 0) // (metalness, smoothness)
-        _UVOffset          ("-", Vector) = (0, 0, 0, 0)
+        _Color        ("-", Color) = (1, 1, 1, 1)
+        _Metallic     ("-", Range(0,1)) = 0.5
+        _Smoothness   ("-", Range(0,1)) = 0.5
 
-        _MainTex           ("-", 2D)     = "white"{}
-		_BumpMap           ("-", 2D)     = "bump"{}
-		_OcclusionMap      ("-", 2D)     = "white"{}
-		_OcclusionStrength ("-", Float)  = 1.0
-        _MapParams         ("-", Vector) = (0, 0, 0, 1) // (offset x, y, z, scale)
+        _MainTex      ("-", 2D) = "white"{}
+        _NormalMap    ("-", 2D) = "bump"{}
+        _NormalScale  ("-", Range(0,2)) = 1
+        _OcclusionMap ("-", 2D) = "white"{}
+        _OcclusionStr ("-", Float) = 1.0
+        _MapScale     ("-", Float) = 1.0
     }
     SubShader
     {
         Tags { "RenderType"="Opaque" }
 
         Offset 1, 1
-        
+
         CGPROGRAM
 
         #pragma surface surf Standard vertex:vert nolightmap addshadow
+        #pragma shader_feature _ALBEDOMAP
+        #pragma shader_feature _NORMALMAP
+        #pragma shader_feature _OCCLUSIONMAP
         #pragma target 3.0
-
-        #pragma multi_compile _ _ALBEDOMAP
-        #pragma multi_compile _ _NORMALMAP
-        #pragma multi_compile _ _OCCLUSIONMAP
 
         sampler2D _PositionTex;
         sampler2D _NormalTex;
+        float2 _BufferOffset; // hidden on inspector
 
         half4 _Color;
-        half2 _PbrParams;
-        float2 _UVOffset;
+        half _Metallic;
+        half _Smoothness;
 
         sampler2D _MainTex;
-        sampler2D _BumpMap;
+        sampler2D _NormalMap;
+        half _NormalScale;
         sampler2D _OcclusionMap;
-        half _OcclusionStrength;
-        float4 _MapParams;
+        half _OcclusionStr;
+        half _MapScale;
+        float3 _MapOffset; // hidden on inspector
 
         struct Input
         {
@@ -65,8 +68,8 @@ Shader "Hidden/Kvant/Lattice/Surface"
         {
             UNITY_INITIALIZE_OUTPUT(Input, data);
 
-            float4 uv1 = float4(v.texcoord  + _UVOffset, 0, 0);
-            float4 uv2 = float4(v.texcoord1 + _UVOffset, 0, 0);
+            float4 uv1 = float4(v.texcoord  + _BufferOffset, 0, 0);
+            float4 uv2 = float4(v.texcoord1 + _BufferOffset, 0, 0);
 
             v.vertex.xyz += tex2Dlod(_PositionTex, uv1).xyz;
             v.normal = tex2Dlod(_NormalTex, uv2).xyz;
@@ -76,8 +79,8 @@ Shader "Hidden/Kvant/Lattice/Surface"
         #endif
 
         #if _ALBEDOMAP || _NORMALMAP || _OCCLUSIONMAP
-            data.localCoord = (v.vertex.xyz + float3(_MapParams.xyz)) * _MapParams.w;
-            data.localNormal = v.normal.xyz;
+            data.localCoord = (v.vertex.xyz + float3(_MapOffset)) * _MapScale;
+            data.localNormal = v.normal;
         #endif
         }
 
@@ -109,9 +112,9 @@ Shader "Hidden/Kvant/Lattice/Surface"
 
         #if _NORMALMAP
             // Normal map
-            half4 nx = tex2D(_BumpMap, pmx) * blend.x;
-            half4 ny = tex2D(_BumpMap, pmy) * blend.y;
-            half4 nz = tex2D(_BumpMap, pmz) * blend.z;
+            half4 nx = tex2D(_NormalMap, pmx) * blend.x;
+            half4 ny = tex2D(_NormalMap, pmy) * blend.y;
+            half4 nz = tex2D(_NormalMap, pmz) * blend.z;
             o.Normal = UnpackNormal(nx + ny + nz);
         #endif
 
@@ -120,13 +123,13 @@ Shader "Hidden/Kvant/Lattice/Surface"
             half ox = tex2D(_OcclusionMap, pmx).g * blend.x;
             half oy = tex2D(_OcclusionMap, pmy).g * blend.y;
             half oz = tex2D(_OcclusionMap, pmz).g * blend.z;
-            o.Occlusion = lerp((half4)1, ox + oy + oz, _OcclusionStrength);
+            o.Occlusion = lerp((half4)1, ox + oy + oz, _OcclusionStr);
         #endif
 
-            o.Metallic = _PbrParams.x;
-            o.Smoothness = _PbrParams.y;
+            o.Metallic = _Metallic;
+            o.Smoothness = _Smoothness;
         }
 
         ENDCG
-    } 
+    }
 }

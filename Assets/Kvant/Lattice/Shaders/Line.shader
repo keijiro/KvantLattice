@@ -4,14 +4,14 @@
 // Vertex format:
 // position     = not in use
 // texcoord0.xy = uv for position texture
+// texcoord1.xy = uv for normal texture
 //
 Shader "Hidden/Kvant/Lattice/Line"
 {
     Properties
     {
-        _PositionTex ("-", 2D)    = ""{}
+        _PositionTex ("-", 2D) = ""{}
         [HDR] _Color ("-", Color) = (1, 1, 1, 0.5)
-        _UVOffset    ("-", Vector) = (0, 0, 0, 0)
     }
 
     CGINCLUDE
@@ -28,11 +28,11 @@ Shader "Hidden/Kvant/Lattice/Line"
 
     sampler2D _PositionTex;
     half4 _Color;
-    float2 _UVOffset;
+    float2 _BufferOffset; // hidden on inspector
 
     v2f vert(appdata_base v)
     {
-        float4 uv = float4(v.texcoord + _UVOffset, 0, 0);
+        float4 uv = float4(v.texcoord + _BufferOffset, 0, 0);
 
         float4 pos = v.vertex;
         pos.xyz += tex2Dlod(_PositionTex, uv).xyz;
@@ -66,5 +66,5 @@ Shader "Hidden/Kvant/Lattice/Line"
             #pragma fragment frag
             ENDCG
         }
-    } 
+    }
 }
