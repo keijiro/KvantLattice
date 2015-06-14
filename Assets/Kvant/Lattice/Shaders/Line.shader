@@ -10,7 +10,7 @@ Shader "Hidden/Kvant/Lattice/Line"
 {
     Properties
     {
-        _PositionTex ("-", 2D) = ""{}
+        _PositionTex ("-", 2D) = "black"{}
         [HDR] _Color ("-", Color) = (1, 1, 1, 0.5)
     }
 
@@ -28,7 +28,7 @@ Shader "Hidden/Kvant/Lattice/Line"
 
     sampler2D _PositionTex;
     half4 _Color;
-    float2 _BufferOffset; // hidden on inspector
+    float2 _BufferOffset;
 
     v2f vert(appdata_base v)
     {

@@ -11,7 +11,7 @@ Shader "Kvant/Lattice/Surface"
     Properties
     {
         _PositionTex  ("-", 2D) = "black"{}
-        _NormalTex    ("-", 2D) = "red"{}
+        _NormalTex    ("-", 2D) = "black"{}
 
         _Color        ("-", Color) = (1, 1, 1, 1)
         _Metallic     ("-", Range(0,1)) = 0.5
@@ -132,4 +132,5 @@ Shader "Kvant/Lattice/Surface"
 
         ENDCG
     }
+    CustomEditor "Kvant.LatticeMaterialEditor"
 }
