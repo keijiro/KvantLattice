@@ -1,5 +1,5 @@
 ﻿//
-// Surface shader for Mountain
+// Surface shader for Lattice
 //
 // Vertex format:
 // position     = not in use

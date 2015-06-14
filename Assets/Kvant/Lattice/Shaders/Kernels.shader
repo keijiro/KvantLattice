@@ -1,5 +1,5 @@
 ﻿//
-// GPGPU kernels for Tunnel
+// GPGPU kernels for Lattice
 //
 Shader "Hidden/Kvant/Lattice/Kernels"
 {

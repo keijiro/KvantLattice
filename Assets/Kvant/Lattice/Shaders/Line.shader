@@ -1,5 +1,5 @@
 ﻿//
-// Line shader for Mountain
+// Line shader for Lattice
 //
 // Vertex format:
 // position     = not in use
