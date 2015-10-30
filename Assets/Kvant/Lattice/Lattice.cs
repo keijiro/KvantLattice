@@ -94,6 +94,14 @@ namespace Kvant
             set { _noiseWarp = value; }
         }
 
+        [SerializeField]
+        Vector2 _noiseOffset;
+
+        public Vector2 noiseOffset {
+            get { return _noiseOffset; }
+            set { _noiseOffset = value; }
+        }
+
         #endregion
 
         #region Render Settings
@@ -244,7 +252,7 @@ namespace Kvant
             var m = _kernelMaterial;
 
             m.SetVector("_Extent", _extent);
-            m.SetVector("_Offset", new Vector2(UOffset, VOffset));
+            m.SetVector("_Offset", new Vector2(UOffset, VOffset) + _noiseOffset);
             m.SetFloat("_Frequency", _noiseFrequency);
             m.SetVector("_Amplitude", new Vector3(_noiseWarp, 1, _noiseWarp) * _noiseElevation);
             m.SetVector("_ClampRange", new Vector2(_noiseClampMin, _noiseClampMax) * 1.415f);

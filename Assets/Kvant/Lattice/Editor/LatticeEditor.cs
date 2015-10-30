@@ -21,6 +21,7 @@ namespace Kvant
         SerializedProperty _noiseClampMax;
         SerializedProperty _noiseElevation;
         SerializedProperty _noiseWarp;
+        SerializedProperty _noiseOffset;
 
         SerializedProperty _material;
         SerializedProperty _castShadows;
@@ -33,6 +34,7 @@ namespace Kvant
         static GUIContent _textDepth     = new GUIContent("Depth");
         static GUIContent _textClamp     = new GUIContent("Clamp");
         static GUIContent _textElevation = new GUIContent("Elevation");
+        static GUIContent _textOffset    = new GUIContent("Offset");
         static GUIContent _textWarp      = new GUIContent("Warp");
 
         void OnEnable()
@@ -48,6 +50,7 @@ namespace Kvant
             _noiseClampMax  = serializedObject.FindProperty("_noiseClampMax");
             _noiseElevation = serializedObject.FindProperty("_noiseElevation");
             _noiseWarp      = serializedObject.FindProperty("_noiseWarp");
+            _noiseOffset    = serializedObject.FindProperty("_noiseOffset");
 
             _material       = serializedObject.FindProperty("_material");
             _castShadows    = serializedObject.FindProperty("_castShadows");
@@ -87,6 +90,7 @@ namespace Kvant
             MinMaxSlider(_textClamp, _noiseClampMin, _noiseClampMax, -1.0f, 1.0f);
             EditorGUILayout.PropertyField(_noiseElevation, _textElevation);
             EditorGUILayout.PropertyField(_noiseWarp, _textWarp);
+            EditorGUILayout.PropertyField(_noiseOffset, _textOffset);
 
             EditorGUILayout.Space();
 
