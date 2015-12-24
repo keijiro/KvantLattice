@@ -84,7 +84,8 @@ Shader "Hidden/Kvant/Lattice/Kernels"
         float3 d = float3(0, n1, 0);
     #endif
 
-        op += clamp(d, _ClampRange.x, _ClampRange.y) * _Amplitude;
+        float3 amp = _Amplitude * (frac(nc1.x) < 0.5);
+        op += clamp(d, _ClampRange.x, _ClampRange.y) * amp;
 
         return float4(op, 1);
     }
