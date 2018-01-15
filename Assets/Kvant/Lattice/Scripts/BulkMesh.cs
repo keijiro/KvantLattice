@@ -89,7 +89,7 @@ namespace Kvant
                     }
                 }
 
-                // 2nd submesh (A-C-D triangls).
+                // 2nd submesh (B-C-D triangls).
                 for (var Iy = 0; Iy < Ny - 1; Iy++)
                 {
                     for (var Ix = 0; Ix < Nx - 1; Ix++, iTA += 3)
